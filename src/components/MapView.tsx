@@ -7,9 +7,10 @@ interface MapViewProps {
   apiKey: string;
   onFeatureClick?: (feature: any) => void;
   highlightedFeature?: string | null;
+  highlightedCoordinates?: [number, number] | null;
 }
 
-const MapView = ({ apiKey, onFeatureClick, highlightedFeature }: MapViewProps) => {
+const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordinates }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const popup = useRef<maplibregl.Popup | null>(null);
@@ -170,9 +171,23 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature }: MapViewProps) =
     };
   }, [apiKey]);
 
-  // Handle highlighted feature
+  // Handle highlighted feature and coordinates
   useEffect(() => {
-    if (!map.current || !isLoaded || !highlightedFeature) return;
+    if (!map.current || !isLoaded) return;
+
+    // If coordinates are provided directly, use them
+    if (highlightedCoordinates) {
+      map.current.flyTo({
+        center: highlightedCoordinates,
+        zoom: 16,
+        duration: 1500,
+        pitch: 45,
+      });
+      return;
+    }
+
+    // Otherwise, find the feature in the GeoJSON
+    if (!highlightedFeature) return;
 
     const source = map.current.getSource('yume-data') as maplibregl.GeoJSONSource;
     if (!source) return;
@@ -215,7 +230,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature }: MapViewProps) =
           }
         }
       });
-  }, [highlightedFeature, isLoaded]);
+  }, [highlightedFeature, highlightedCoordinates, isLoaded]);
 
   return (
     <div className="relative w-full h-full">

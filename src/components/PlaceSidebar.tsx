@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Building2, GraduationCap, Church, ShoppingBag, Navigation, Car } from 'lucide-react';
+import { Building2, GraduationCap, Church, ShoppingBag, Navigation, Car, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Place {
@@ -14,7 +14,7 @@ interface Place {
 }
 
 interface PlaceSidebarProps {
-  onPlaceClick: (placeName: string) => void;
+  onPlaceClick: (placeName: string, coordinates?: [number, number]) => void;
 }
 
 // Sample places data (you can expand this with actual data from the GeoJSON)
@@ -114,9 +114,9 @@ const categoryConfig = {
 const PlaceSidebar = ({ onPlaceClick }: PlaceSidebarProps) => {
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
 
-  const handlePlaceClick = (placeName: string) => {
+  const handlePlaceClick = (placeName: string, coordinates?: [number, number]) => {
     setSelectedPlace(placeName);
-    onPlaceClick(placeName);
+    onPlaceClick(placeName, coordinates);
   };
 
   const groupedPlaces = places.reduce((acc, place) => {
@@ -134,6 +134,33 @@ const PlaceSidebar = ({ onPlaceClick }: PlaceSidebarProps) => {
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
+          {/* Yume at Riverparks Card */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 px-2">
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <Home className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="font-semibold text-foreground">Your Location</h3>
+            </div>
+            
+            <Card
+              className={cn(
+                "p-4 cursor-pointer transition-all duration-200 hover:shadow-md border-2",
+                selectedPlace === 'Yume at Riverparks'
+                  ? "border-primary bg-primary/5"
+                  : "border-transparent hover:border-border"
+              )}
+              onClick={() => handlePlaceClick('Yume at Riverparks', [120.905, 14.385])}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Home className="w-4 h-4 text-primary" />
+                  <h4 className="font-semibold text-foreground">Yume at Riverparks</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">General Trias, Cavite</p>
+              </div>
+            </Card>
+          </div>
           {Object.entries(groupedPlaces).map(([type, placesInCategory]) => {
             const config = categoryConfig[type as keyof typeof categoryConfig];
             const Icon = config.icon;
@@ -163,12 +190,15 @@ const PlaceSidebar = ({ onPlaceClick }: PlaceSidebarProps) => {
                           ? `border-${config.color} bg-${config.color}/5`
                           : "border-transparent hover:border-border"
                       )}
-                      onClick={() => handlePlaceClick(place.name)}
+                      onClick={() => handlePlaceClick(place.name, place.coordinates)}
                     >
                       <div className="space-y-3">
-                        <h4 className="font-medium text-foreground leading-tight">
-                          {place.name}
-                        </h4>
+                        <div className="flex items-center gap-2">
+                          <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
+                          <h4 className="font-medium text-foreground leading-tight">
+                            {place.name}
+                          </h4>
+                        </div>
 
                         <div className="flex gap-4 text-sm">
                           <div className="flex items-center gap-1.5 text-muted-foreground">

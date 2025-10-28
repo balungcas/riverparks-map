@@ -10,6 +10,7 @@ const Index = () => {
   const [apiKey, setApiKey] = useState('TzNncyeb8gVUMH68QKMX');
   const [tempApiKey, setTempApiKey] = useState('TzNncyeb8gVUMH68QKMX');
   const [highlightedFeature, setHighlightedFeature] = useState<string | null>(null);
+  const [highlightedCoordinates, setHighlightedCoordinates] = useState<[number, number] | null>(null);
 
   const handleApiKeySubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +36,12 @@ const Index = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
         <aside className="w-80 hidden lg:block">
-          <PlaceSidebar onPlaceClick={(placeName) => setHighlightedFeature(placeName)} />
+          <PlaceSidebar 
+            onPlaceClick={(placeName, coordinates) => {
+              setHighlightedFeature(placeName);
+              setHighlightedCoordinates(coordinates || null);
+            }} 
+          />
         </aside>
 
         {/* Map Container */}
@@ -89,6 +95,7 @@ const Index = () => {
               console.log('Feature clicked:', feature);
             }}
             highlightedFeature={highlightedFeature}
+            highlightedCoordinates={highlightedCoordinates}
           />
         </main>
       </div>
