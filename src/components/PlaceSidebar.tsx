@@ -1,0 +1,196 @@
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Building2, GraduationCap, Church, ShoppingBag, Navigation, Car } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface Place {
+  name: string;
+  type: 'hospital' | 'school' | 'church' | 'mall';
+  walkDistance: string;
+  carDistance: string;
+  coordinates: [number, number];
+}
+
+interface PlaceSidebarProps {
+  onPlaceClick: (placeName: string) => void;
+}
+
+// Sample places data (you can expand this with actual data from the GeoJSON)
+const places: Place[] = [
+  // Hospitals
+  {
+    name: 'General Trias District Hospital',
+    type: 'hospital',
+    walkDistance: '2.5 km',
+    carDistance: '1.2 km',
+    coordinates: [120.908, 14.390],
+  },
+  {
+    name: 'St. Dominic Medical Center',
+    type: 'hospital',
+    walkDistance: '3.2 km',
+    carDistance: '1.8 km',
+    coordinates: [120.910, 14.388],
+  },
+  // Schools
+  {
+    name: 'General Trias Technical High School',
+    type: 'school',
+    walkDistance: '1.8 km',
+    carDistance: '0.9 km',
+    coordinates: [120.903, 14.387],
+  },
+  {
+    name: 'Saint John Academy',
+    type: 'school',
+    walkDistance: '2.1 km',
+    carDistance: '1.1 km',
+    coordinates: [120.907, 14.389],
+  },
+  {
+    name: 'Lyceum of the Philippines University',
+    type: 'school',
+    walkDistance: '3.5 km',
+    carDistance: '2.0 km',
+    coordinates: [120.912, 14.391],
+  },
+  // Churches
+  {
+    name: 'San Francisco de Malabon Parish',
+    type: 'church',
+    walkDistance: '2.0 km',
+    carDistance: '1.0 km',
+    coordinates: [120.906, 14.386],
+  },
+  {
+    name: 'Victory Church General Trias',
+    type: 'church',
+    walkDistance: '2.8 km',
+    carDistance: '1.5 km',
+    coordinates: [120.909, 14.388],
+  },
+  // Malls
+  {
+    name: 'Vista Mall General Trias',
+    type: 'mall',
+    walkDistance: '2.3 km',
+    carDistance: '1.3 km',
+    coordinates: [120.908, 14.387],
+  },
+  {
+    name: 'Paseo de Sta. Rosa',
+    type: 'mall',
+    walkDistance: '4.5 km',
+    carDistance: '2.5 km',
+    coordinates: [120.915, 14.393],
+  },
+];
+
+const categoryConfig = {
+  hospital: {
+    icon: Building2,
+    label: 'Hospitals',
+    color: 'hospital',
+  },
+  school: {
+    icon: GraduationCap,
+    label: 'Schools',
+    color: 'school',
+  },
+  church: {
+    icon: Church,
+    label: 'Churches',
+    color: 'church',
+  },
+  mall: {
+    icon: ShoppingBag,
+    label: 'Malls',
+    color: 'mall',
+  },
+};
+
+const PlaceSidebar = ({ onPlaceClick }: PlaceSidebarProps) => {
+  const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
+
+  const handlePlaceClick = (placeName: string) => {
+    setSelectedPlace(placeName);
+    onPlaceClick(placeName);
+  };
+
+  const groupedPlaces = places.reduce((acc, place) => {
+    if (!acc[place.type]) acc[place.type] = [];
+    acc[place.type].push(place);
+    return acc;
+  }, {} as Record<string, Place[]>);
+
+  return (
+    <div className="h-full flex flex-col bg-card border-r border-border">
+      <div className="p-6 border-b border-border">
+        <h2 className="text-2xl font-bold text-foreground">Nearby Places</h2>
+        <p className="text-sm text-muted-foreground mt-1">From Yume at Riverparks</p>
+      </div>
+
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-6">
+          {Object.entries(groupedPlaces).map(([type, placesInCategory]) => {
+            const config = categoryConfig[type as keyof typeof categoryConfig];
+            const Icon = config.icon;
+
+            return (
+              <div key={type} className="space-y-3">
+                <div className="flex items-center gap-2 px-2">
+                  <div className={cn(
+                    "p-1.5 rounded-lg",
+                    `bg-${config.color}/10`
+                  )}>
+                    <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
+                  </div>
+                  <h3 className="font-semibold text-foreground">{config.label}</h3>
+                  <Badge variant="secondary" className="ml-auto">
+                    {placesInCategory.length}
+                  </Badge>
+                </div>
+
+                <div className="space-y-2">
+                  {placesInCategory.map((place) => (
+                    <Card
+                      key={place.name}
+                      className={cn(
+                        "p-4 cursor-pointer transition-all duration-200 hover:shadow-md border-2",
+                        selectedPlace === place.name
+                          ? `border-${config.color} bg-${config.color}/5`
+                          : "border-transparent hover:border-border"
+                      )}
+                      onClick={() => handlePlaceClick(place.name)}
+                    >
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-foreground leading-tight">
+                          {place.name}
+                        </h4>
+
+                        <div className="flex gap-4 text-sm">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Navigation className="w-3.5 h-3.5" />
+                            <span>{place.walkDistance}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Car className="w-3.5 h-3.5" />
+                            <span>{place.carDistance}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+};
+
+export default PlaceSidebar;
