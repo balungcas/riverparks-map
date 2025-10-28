@@ -7,8 +7,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { KeyRound, MapPin } from 'lucide-react';
 
 const Index = () => {
-  const [apiKey, setApiKey] = useState('');
-  const [tempApiKey, setTempApiKey] = useState('');
+  const [apiKey, setApiKey] = useState('TzNncyeb8gVUMH68QKMX');
+  const [tempApiKey, setTempApiKey] = useState('TzNncyeb8gVUMH68QKMX');
   const [highlightedFeature, setHighlightedFeature] = useState<string | null>(null);
 
   const handleApiKeySubmit = (e: React.FormEvent) => {
