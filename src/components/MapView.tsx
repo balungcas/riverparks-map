@@ -63,7 +63,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature }: MapViewProps) =
           source: 'yume-data',
           filter: ['==', ['geometry-type'], 'Polygon'],
           paint: {
-            'fill-color': 'hsl(var(--polygon-main))',
+            'fill-color': '#87db88',
             'fill-opacity': 0.4,
           },
         });
@@ -75,7 +75,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature }: MapViewProps) =
           source: 'yume-data',
           filter: ['==', ['geometry-type'], 'Polygon'],
           paint: {
-            'line-color': 'hsl(var(--polygon-main))',
+            'line-color': '#87db88',
             'line-width': 2,
           },
         });
@@ -87,7 +87,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature }: MapViewProps) =
           source: 'yume-data',
           filter: ['==', ['geometry-type'], 'LineString'],
           paint: {
-            'line-color': 'hsl(var(--line-primary))',
+            'line-color': '#9b59b6',
             'line-width': 3,
             'line-opacity': 0.8,
           },
@@ -100,7 +100,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature }: MapViewProps) =
           source: 'yume-data',
           filter: ['==', ['geometry-type'], 'MultiLineString'],
           paint: {
-            'line-color': 'hsl(var(--line-secondary))',
+            'line-color': '#16a085',
             'line-width': 3,
             'line-opacity': 0.8,
           },
