@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import MapView from '@/components/MapView';
-import PlaceSidebar from '@/components/PlaceSidebar';
+import PlaceSidebar, { places } from '@/components/PlaceSidebar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -11,6 +11,7 @@ const Index = () => {
   const [tempApiKey, setTempApiKey] = useState('TzNncyeb8gVUMH68QKMX');
   const [highlightedFeature, setHighlightedFeature] = useState<string | null>(null);
   const [highlightedCoordinates, setHighlightedCoordinates] = useState<[number, number] | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const handleApiKeySubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +41,9 @@ const Index = () => {
             onPlaceClick={(placeName, coordinates) => {
               setHighlightedFeature(placeName);
               setHighlightedCoordinates(coordinates || null);
-            }} 
+            }}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
           />
         </aside>
 
@@ -96,6 +99,8 @@ const Index = () => {
             }}
             highlightedFeature={highlightedFeature}
             highlightedCoordinates={highlightedCoordinates}
+            places={places}
+            selectedCategory={selectedCategory}
           />
         </main>
       </div>

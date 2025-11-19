@@ -2,18 +2,30 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { cn } from '@/lib/utils';
+import { Place } from './PlaceSidebar';
 
 interface MapViewProps {
   apiKey: string;
   onFeatureClick?: (feature: any) => void;
   highlightedFeature?: string | null;
   highlightedCoordinates?: [number, number] | null;
+  places: Place[];
+  selectedCategory: string | null;
 }
 
-const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordinates }: MapViewProps) => {
+// Icon colors for each category
+const categoryColors = {
+  hospital: '#e74c3c',
+  school: '#3498db',
+  church: '#9b59b6',
+  mall: '#e67e22',
+};
+
+const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordinates, places, selectedCategory }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const popup = useRef<maplibregl.Popup | null>(null);
+  const markers = useRef<maplibregl.Marker[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -167,22 +179,104 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
 
     return () => {
       if (popup.current) popup.current.remove();
+      markers.current.forEach(marker => marker.remove());
       if (map.current) map.current.remove();
     };
   }, [apiKey]);
 
-  // Handle highlighted feature and coordinates
+  // Add markers for places
   useEffect(() => {
     if (!map.current || !isLoaded) return;
 
+    // Remove existing markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = [];
+
+    // Filter places based on selected category
+    const filteredPlaces = selectedCategory 
+      ? places.filter(place => place.type === selectedCategory)
+      : places;
+
+    // Create markers for filtered places
+    filteredPlaces.forEach((place) => {
+      const el = document.createElement('div');
+      el.className = 'custom-marker';
+      el.style.width = '30px';
+      el.style.height = '30px';
+      el.style.borderRadius = '50%';
+      el.style.backgroundColor = categoryColors[place.type];
+      el.style.border = '3px solid white';
+      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+      el.style.cursor = 'pointer';
+      el.style.transition = 'transform 0.2s';
+
+      el.addEventListener('mouseenter', () => {
+        el.style.transform = 'scale(1.2)';
+      });
+
+      el.addEventListener('mouseleave', () => {
+        el.style.transform = 'scale(1)';
+      });
+
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat(place.coordinates)
+        .addTo(map.current!);
+
+      markers.current.push(marker);
+    });
+  }, [isLoaded, places, selectedCategory]);
+
+  // Handle highlighted feature and coordinates with popup
+  useEffect(() => {
+    if (!map.current || !isLoaded) return;
+
+    // Remove existing popup
+    if (popup.current) {
+      popup.current.remove();
+    }
+
     // If coordinates are provided directly, use them
-    if (highlightedCoordinates) {
+    if (highlightedCoordinates && highlightedFeature) {
       map.current.flyTo({
         center: highlightedCoordinates,
         zoom: 16,
         duration: 1500,
         pitch: 45,
       });
+
+      // Find the place data (skip for 'Yume at Riverparks')
+      if (highlightedFeature !== 'Yume at Riverparks') {
+        const place = places.find(p => p.name === highlightedFeature);
+        
+        if (place) {
+          // Create popup with place information
+          const popupContent = `
+            <div style="padding: 8px;">
+              <h3 style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a;">${place.name}</h3>
+              <div style="display: flex; gap: 16px; font-size: 13px; color: #666;">
+                <div>
+                  <div style="font-weight: 500;">Walking</div>
+                  <div>${place.walkDistance}</div>
+                </div>
+                <div>
+                  <div style="font-weight: 500;">Driving</div>
+                  <div>${place.carDistance}</div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          popup.current = new maplibregl.Popup({
+            closeButton: true,
+            closeOnClick: true,
+            offset: 15,
+          })
+            .setLngLat(highlightedCoordinates)
+            .setHTML(popupContent)
+            .addTo(map.current);
+        }
+      }
+      
       return;
     }
 
@@ -230,7 +324,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           }
         }
       });
-  }, [highlightedFeature, highlightedCoordinates, isLoaded]);
+  }, [highlightedFeature, highlightedCoordinates, isLoaded, places]);
 
   return (
     <div className="relative w-full h-full">
