@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Building2, GraduationCap, Church, ShoppingBag, Navigation, Car, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface Place {
+export interface Place {
   name: string;
   type: 'hospital' | 'school' | 'church' | 'mall';
   walkDistance: string;
@@ -15,10 +15,12 @@ interface Place {
 
 interface PlaceSidebarProps {
   onPlaceClick: (placeName: string, coordinates?: [number, number]) => void;
+  selectedCategory: string | null;
+  onCategoryChange: (category: string | null) => void;
 }
 
 // Sample places data (you can expand this with actual data from the GeoJSON)
-const places: Place[] = [
+export const places: Place[] = [
   // Hospitals
   {
     name: 'General Trias District Hospital',
@@ -111,7 +113,7 @@ const categoryConfig = {
   },
 };
 
-const PlaceSidebar = ({ onPlaceClick }: PlaceSidebarProps) => {
+const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: PlaceSidebarProps) => {
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
 
   const handlePlaceClick = (placeName: string, coordinates?: [number, number]) => {
@@ -127,9 +129,35 @@ const PlaceSidebar = ({ onPlaceClick }: PlaceSidebarProps) => {
 
   return (
     <div className="h-full flex flex-col bg-card border-r border-border">
-      <div className="p-6 border-b border-border">
-        <h2 className="text-2xl font-bold text-foreground">Nearby Places</h2>
-        <p className="text-sm text-muted-foreground mt-1">From Yume at Riverparks</p>
+      <div className="p-6 border-b border-border space-y-4">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">Nearby Places</h2>
+          <p className="text-sm text-muted-foreground mt-1">From Yume at Riverparks</p>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <Badge
+            variant={selectedCategory === null ? "default" : "outline"}
+            className="cursor-pointer"
+            onClick={() => onCategoryChange(null)}
+          >
+            All
+          </Badge>
+          {Object.entries(categoryConfig).map(([type, config]) => {
+            const Icon = config.icon;
+            return (
+              <Badge
+                key={type}
+                variant={selectedCategory === type ? "default" : "outline"}
+                className="cursor-pointer gap-1"
+                onClick={() => onCategoryChange(type)}
+              >
+                <Icon className="w-3 h-3" />
+                {config.label}
+              </Badge>
+            );
+          })}
+        </div>
       </div>
 
       <ScrollArea className="flex-1">
