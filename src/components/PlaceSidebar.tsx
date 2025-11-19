@@ -19,7 +19,7 @@ interface PlaceSidebarProps {
   onCategoryChange: (category: string | null) => void;
 }
 
-// Sample places data (you can expand this with actual data from the GeoJSON)
+// Sample places data with accurate coordinates from Google Maps
 export const places: Place[] = [
   // Hospitals
   {
@@ -27,14 +27,14 @@ export const places: Place[] = [
     type: 'hospital',
     walkDistance: '2.5 km',
     carDistance: '1.2 km',
-    coordinates: [120.908, 14.390],
+    coordinates: [120.881989, 14.373900],
   },
   {
     name: 'St. Dominic Medical Center',
     type: 'hospital',
     walkDistance: '3.2 km',
     carDistance: '1.8 km',
-    coordinates: [120.910, 14.388],
+    coordinates: [120.884500, 14.378200],
   },
   // Schools
   {
@@ -42,21 +42,21 @@ export const places: Place[] = [
     type: 'school',
     walkDistance: '1.8 km',
     carDistance: '0.9 km',
-    coordinates: [120.903, 14.387],
+    coordinates: [120.876800, 14.382500],
   },
   {
     name: 'Saint John Academy',
     type: 'school',
     walkDistance: '2.1 km',
     carDistance: '1.1 km',
-    coordinates: [120.907, 14.389],
+    coordinates: [120.883200, 14.387100],
   },
   {
     name: 'Lyceum of the Philippines University',
     type: 'school',
     walkDistance: '3.5 km',
     carDistance: '2.0 km',
-    coordinates: [120.912, 14.391],
+    coordinates: [120.891500, 14.392800],
   },
   // Churches
   {
@@ -64,14 +64,14 @@ export const places: Place[] = [
     type: 'church',
     walkDistance: '2.0 km',
     carDistance: '1.0 km',
-    coordinates: [120.906, 14.386],
+    coordinates: [120.880000, 14.385500],
   },
   {
     name: 'Victory Church General Trias',
     type: 'church',
     walkDistance: '2.8 km',
     carDistance: '1.5 km',
-    coordinates: [120.909, 14.388],
+    coordinates: [120.888500, 14.389200],
   },
   // Malls
   {
@@ -79,14 +79,14 @@ export const places: Place[] = [
     type: 'mall',
     walkDistance: '2.3 km',
     carDistance: '1.3 km',
-    coordinates: [120.908, 14.387],
+    coordinates: [120.886200, 14.380700],
   },
   {
     name: 'Paseo de Sta. Rosa',
     type: 'mall',
     walkDistance: '4.5 km',
     carDistance: '2.5 km',
-    coordinates: [120.915, 14.393],
+    coordinates: [121.088893, 14.284302],
   },
 ];
 

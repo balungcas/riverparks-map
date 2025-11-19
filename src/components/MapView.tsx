@@ -3,6 +3,8 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { cn } from '@/lib/utils';
 import { Place } from './PlaceSidebar';
+import { Building2, GraduationCap, Church, ShoppingBag } from 'lucide-react';
+import { createRoot } from 'react-dom/client';
 
 interface MapViewProps {
   apiKey: string;
@@ -19,6 +21,13 @@ const categoryColors = {
   school: '#3498db',
   church: '#9b59b6',
   mall: '#e67e22',
+};
+
+const categoryIcons = {
+  hospital: Building2,
+  school: GraduationCap,
+  church: Church,
+  mall: ShoppingBag,
 };
 
 const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordinates, places, selectedCategory }: MapViewProps) => {
@@ -201,14 +210,27 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
     filteredPlaces.forEach((place) => {
       const el = document.createElement('div');
       el.className = 'custom-marker';
-      el.style.width = '30px';
-      el.style.height = '30px';
+      el.style.width = '36px';
+      el.style.height = '36px';
       el.style.borderRadius = '50%';
-      el.style.backgroundColor = categoryColors[place.type];
-      el.style.border = '3px solid white';
-      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+      el.style.backgroundColor = 'white';
+      el.style.border = `3px solid ${categoryColors[place.type]}`;
+      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
       el.style.cursor = 'pointer';
       el.style.transition = 'transform 0.2s';
+      el.style.display = 'flex';
+      el.style.alignItems = 'center';
+      el.style.justifyContent = 'center';
+
+      // Create icon container
+      const iconContainer = document.createElement('div');
+      createRoot(iconContainer).render(
+        (() => {
+          const Icon = categoryIcons[place.type];
+          return <Icon size={18} color={categoryColors[place.type]} strokeWidth={2.5} />;
+        })()
+      );
+      el.appendChild(iconContainer);
 
       el.addEventListener('mouseenter', () => {
         el.style.transform = 'scale(1.2)';
