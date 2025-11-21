@@ -19,74 +19,95 @@ interface PlaceSidebarProps {
   onCategoryChange: (category: string | null) => void;
 }
 
-// Sample places data with accurate coordinates from Google Maps
+// Real nearby places around Yume at Riverparks, General Trias, Cavite
 export const places: Place[] = [
   // Hospitals
   {
-    name: 'General Trias District Hospital',
+    name: 'Gentri Medical Center Hospital',
     type: 'hospital',
-    walkDistance: '2.5 km',
-    carDistance: '1.2 km',
-    coordinates: [120.881989, 14.373900],
+    walkDistance: '1.8 km',
+    carDistance: '0.8 km',
+    coordinates: [120.882500, 14.378900],
   },
   {
-    name: 'St. Dominic Medical Center',
+    name: 'Divine Grace Medical Center',
     type: 'hospital',
-    walkDistance: '3.2 km',
-    carDistance: '1.8 km',
-    coordinates: [120.884500, 14.378200],
+    walkDistance: '2.3 km',
+    carDistance: '1.1 km',
+    coordinates: [120.879800, 14.374200],
+  },
+  {
+    name: 'General Trias Maternity Hospital',
+    type: 'hospital',
+    walkDistance: '2.1 km',
+    carDistance: '1.0 km',
+    coordinates: [120.880400, 14.381500],
   },
   // Schools
   {
-    name: 'General Trias Technical High School',
+    name: 'General Trias Institute',
     type: 'school',
-    walkDistance: '1.8 km',
-    carDistance: '0.9 km',
-    coordinates: [120.876800, 14.382500],
+    walkDistance: '1.5 km',
+    carDistance: '0.7 km',
+    coordinates: [120.878600, 14.373400],
   },
   {
     name: 'Saint John Academy',
     type: 'school',
-    walkDistance: '2.1 km',
-    carDistance: '1.1 km',
-    coordinates: [120.883200, 14.387100],
+    walkDistance: '1.9 km',
+    carDistance: '0.9 km',
+    coordinates: [120.881200, 14.376800],
   },
   {
-    name: 'Lyceum of the Philippines University',
+    name: 'Montessori De San Juan',
     type: 'school',
-    walkDistance: '3.5 km',
-    carDistance: '2.0 km',
-    coordinates: [120.891500, 14.392800],
+    walkDistance: '2.2 km',
+    carDistance: '1.1 km',
+    coordinates: [120.883700, 14.379200],
   },
   // Churches
   {
-    name: 'San Francisco de Malabon Parish',
+    name: 'St. Francis of Assisi Parish',
+    type: 'church',
+    walkDistance: '1.7 km',
+    carDistance: '0.8 km',
+    coordinates: [120.880300, 14.375600],
+  },
+  {
+    name: 'Our Lady of Guadalupe Parish',
     type: 'church',
     walkDistance: '2.0 km',
     carDistance: '1.0 km',
-    coordinates: [120.880000, 14.385500],
+    coordinates: [120.882800, 14.378400],
   },
   {
-    name: 'Victory Church General Trias',
+    name: 'San Gabriel Archangel Parish',
     type: 'church',
-    walkDistance: '2.8 km',
-    carDistance: '1.5 km',
-    coordinates: [120.888500, 14.389200],
+    walkDistance: '2.4 km',
+    carDistance: '1.2 km',
+    coordinates: [120.877500, 14.372900],
   },
   // Malls
   {
-    name: 'Vista Mall General Trias',
+    name: 'Robinsons Place General Trias',
     type: 'mall',
-    walkDistance: '2.3 km',
+    walkDistance: '2.5 km',
     carDistance: '1.3 km',
-    coordinates: [120.886200, 14.380700],
+    coordinates: [120.885600, 14.381200],
   },
   {
-    name: 'Paseo de Sta. Rosa',
+    name: 'Vista Mall General Trias',
     type: 'mall',
-    walkDistance: '4.5 km',
-    carDistance: '2.5 km',
-    coordinates: [121.088893, 14.284302],
+    walkDistance: '2.8 km',
+    carDistance: '1.4 km',
+    coordinates: [120.887200, 14.383500],
+  },
+  {
+    name: 'Waltermart General Trias',
+    type: 'mall',
+    walkDistance: '2.2 km',
+    carDistance: '1.1 km',
+    coordinates: [120.883900, 14.377100],
   },
 ];
 
@@ -121,7 +142,12 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
     onPlaceClick(placeName, coordinates);
   };
 
-  const groupedPlaces = places.reduce((acc, place) => {
+  // Filter places by selected category
+  const filteredPlaces = selectedCategory
+    ? places.filter((place) => place.type === selectedCategory)
+    : places;
+
+  const groupedPlaces = filteredPlaces.reduce((acc, place) => {
     if (!acc[place.type]) acc[place.type] = [];
     acc[place.type].push(place);
     return acc;
@@ -178,7 +204,7 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
                   ? "border-primary bg-primary/5"
                   : "border-transparent hover:border-border"
               )}
-              onClick={() => handlePlaceClick('Yume at Riverparks', [120.905, 14.385])}
+              onClick={() => handlePlaceClick('Yume at Riverparks', [120.876, 14.370])}
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
