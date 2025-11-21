@@ -19,95 +19,123 @@ interface PlaceSidebarProps {
   onCategoryChange: (category: string | null) => void;
 }
 
-// Real nearby places around Yume at Riverparks, General Trias, Cavite
+// Exact locations from Google My Maps KML file
 export const places: Place[] = [
-  // Hospitals
-  {
-    name: 'Gentri Medical Center Hospital',
-    type: 'hospital',
-    walkDistance: '1.8 km',
-    carDistance: '0.8 km',
-    coordinates: [120.882500, 14.378900],
-  },
-  {
-    name: 'Divine Grace Medical Center',
-    type: 'hospital',
-    walkDistance: '2.3 km',
-    carDistance: '1.1 km',
-    coordinates: [120.879800, 14.374200],
-  },
-  {
-    name: 'General Trias Maternity Hospital',
-    type: 'hospital',
-    walkDistance: '2.1 km',
-    carDistance: '1.0 km',
-    coordinates: [120.880400, 14.381500],
-  },
-  // Schools
-  {
-    name: 'General Trias Institute',
-    type: 'school',
-    walkDistance: '1.5 km',
-    carDistance: '0.7 km',
-    coordinates: [120.878600, 14.373400],
-  },
-  {
-    name: 'Saint John Academy',
-    type: 'school',
-    walkDistance: '1.9 km',
-    carDistance: '0.9 km',
-    coordinates: [120.881200, 14.376800],
-  },
-  {
-    name: 'Montessori De San Juan',
-    type: 'school',
-    walkDistance: '2.2 km',
-    carDistance: '1.1 km',
-    coordinates: [120.883700, 14.379200],
-  },
-  // Churches
-  {
-    name: 'St. Francis of Assisi Parish',
-    type: 'church',
-    walkDistance: '1.7 km',
-    carDistance: '0.8 km',
-    coordinates: [120.880300, 14.375600],
-  },
-  {
-    name: 'Our Lady of Guadalupe Parish',
-    type: 'church',
-    walkDistance: '2.0 km',
-    carDistance: '1.0 km',
-    coordinates: [120.882800, 14.378400],
-  },
-  {
-    name: 'San Gabriel Archangel Parish',
-    type: 'church',
-    walkDistance: '2.4 km',
-    carDistance: '1.2 km',
-    coordinates: [120.877500, 14.372900],
-  },
   // Malls
-  {
-    name: 'Robinsons Place General Trias',
-    type: 'mall',
-    walkDistance: '2.5 km',
-    carDistance: '1.3 km',
-    coordinates: [120.885600, 14.381200],
-  },
   {
     name: 'Vista Mall General Trias',
     type: 'mall',
-    walkDistance: '2.8 km',
-    carDistance: '1.4 km',
-    coordinates: [120.887200, 14.383500],
+    walkDistance: '5.8 km',
+    carDistance: '3.1 km',
+    coordinates: [120.9124179, 14.3225442],
   },
   {
-    name: 'Waltermart General Trias',
+    name: 'Imart Shopping Center',
     type: 'mall',
-    walkDistance: '2.2 km',
+    walkDistance: '2.8 km',
+    carDistance: '1.5 km',
+    coordinates: [120.8986942, 14.3858642],
+  },
+  {
+    name: 'The District Imus',
+    type: 'mall',
+    walkDistance: '6.5 km',
+    carDistance: '3.5 km',
+    coordinates: [120.9394139, 14.3706188],
+  },
+  {
+    name: 'SM Center Imus',
+    type: 'mall',
+    walkDistance: '7.2 km',
+    carDistance: '3.9 km',
+    coordinates: [120.9246296, 14.4088854],
+  },
+  // Hospitals
+  {
+    name: 'South Imus Specialist Hospital',
+    type: 'hospital',
+    walkDistance: '6.4 km',
+    carDistance: '3.4 km',
+    coordinates: [120.9347566, 14.3765538],
+  },
+  {
+    name: 'Ospital ng Imus',
+    type: 'hospital',
+    walkDistance: '5.2 km',
+    carDistance: '2.8 km',
+    coordinates: [120.9199721, 14.3936854],
+  },
+  {
+    name: 'Emilio Aguinaldo College Medical Center - Cavite',
+    type: 'hospital',
+    walkDistance: '7.1 km',
+    carDistance: '3.8 km',
+    coordinates: [120.9397649, 14.3486372],
+  },
+  {
+    name: 'De la Salle University Medical Center',
+    type: 'hospital',
+    walkDistance: '7.9 km',
+    carDistance: '4.2 km',
+    coordinates: [120.9434238, 14.3271716],
+  },
+  // Churches
+  {
+    name: 'San Francisco De Malabon Parish',
+    type: 'church',
+    walkDistance: '1.9 km',
+    carDistance: '1.0 km',
+    coordinates: [120.8800058, 14.3855046],
+  },
+  {
+    name: 'Immaculate Conception Parish Church',
+    type: 'church',
+    walkDistance: '6.8 km',
+    carDistance: '3.6 km',
+    coordinates: [120.9358534, 14.3269432],
+  },
+  {
+    name: 'The Annunciation of the Lord Parish',
+    type: 'church',
+    walkDistance: '2.8 km',
+    carDistance: '1.5 km',
+    coordinates: [120.8955918, 14.3624276],
+  },
+  {
+    name: 'The Church of Jesus Christ of Latter-day Saints',
+    type: 'church',
+    walkDistance: '1.9 km',
+    carDistance: '1.0 km',
+    coordinates: [120.8819163, 14.3813168],
+  },
+  // Schools
+  {
+    name: 'Samuel Christian College of General Trias, Inc.',
+    type: 'school',
+    walkDistance: '2.0 km',
     carDistance: '1.1 km',
-    coordinates: [120.883900, 14.377100],
+    coordinates: [120.8888265, 14.3800883],
+  },
+  {
+    name: 'Cavite State University - General Trias Campus',
+    type: 'school',
+    walkDistance: '1.8 km',
+    carDistance: '1.0 km',
+    coordinates: [120.88049, 14.3850025],
+  },
+  {
+    name: 'The Palmridge School - General Trias',
+    type: 'school',
+    walkDistance: '3.7 km',
+    carDistance: '2.0 km',
+    coordinates: [120.9069569, 14.3428749],
+  },
+  {
+    name: 'Gen. Trias Memorial Elementary School',
+    type: 'school',
+    walkDistance: '1.7 km',
+    carDistance: '0.9 km',
+    coordinates: [120.8772768, 14.3825654],
   },
 ];
 
