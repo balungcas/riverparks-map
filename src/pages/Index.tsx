@@ -35,8 +35,8 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
-        <aside className="w-80 hidden lg:block">
+        {/* Sidebar - Always Visible */}
+        <aside className="w-80 flex-shrink-0">
           <PlaceSidebar 
             onPlaceClick={(placeName, coordinates) => {
               setHighlightedFeature(placeName);
@@ -103,14 +103,6 @@ const Index = () => {
             selectedCategory={selectedCategory}
           />
         </main>
-      </div>
-
-      {/* Mobile Sidebar Toggle - shown on small screens */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-50">
-        <Button size="lg" className="rounded-full shadow-lg">
-          <MapPin className="w-5 h-5 mr-2" />
-          Places
-        </Button>
       </div>
     </div>
   );
