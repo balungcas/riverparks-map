@@ -21,14 +21,14 @@ const Index = () => {
   return (
     <div className="h-screen w-full flex flex-col bg-background">
       {/* Header */}
-      <header className="h-16 border-b border-border bg-card flex items-center px-6 shadow-sm">
+      <header className="h-16 border-b border-nav-foreground/20 bg-nav-background flex items-center px-6 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <MapPin className="w-5 h-5 text-primary" />
+          <div className="p-2 bg-nav-foreground/10 rounded-lg">
+            <MapPin className="w-5 h-5 text-nav-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Yume at Riverparks</h1>
-            <p className="text-xs text-muted-foreground">General Trias, Cavite</p>
+            <h1 className="text-xl font-bold text-nav-foreground">yume at riverparks</h1>
+            <p className="text-xs text-nav-foreground/70">general trias, cavite</p>
           </div>
         </div>
       </header>

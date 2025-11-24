@@ -182,17 +182,17 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
   }, {} as Record<string, Place[]>);
 
   return (
-    <div className="h-full flex flex-col bg-black/30 backdrop-blur-xl border-r border-white/20 shadow-2xl">
-      <div className="p-6 border-b border-white/20 space-y-4 bg-gradient-to-b from-white/5 to-transparent">
+    <div className="h-full flex flex-col bg-nav-background border-r border-nav-foreground/20 shadow-lg">
+      <div className="p-6 border-b border-nav-foreground/20 space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-white drop-shadow-lg">Nearby Places</h2>
-          <p className="text-sm text-white/80 mt-1">From Yume at Riverparks</p>
+          <h2 className="text-2xl font-bold text-nav-foreground">nearby places</h2>
+          <p className="text-sm text-nav-foreground/70 mt-1">from yume at riverparks</p>
         </div>
         
         <div className="flex flex-wrap gap-2">
           <Badge
             variant={selectedCategory === null ? "default" : "outline"}
-            className="cursor-pointer transition-all hover:scale-105 bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-sm"
+            className="cursor-pointer transition-all hover:scale-105 bg-nav-foreground/10 hover:bg-nav-foreground/20 border-nav-foreground/30 text-nav-foreground"
             onClick={() => onCategoryChange(null)}
           >
             All
@@ -204,10 +204,10 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
                 key={type}
                 variant={selectedCategory === type ? "default" : "outline"}
                 className={cn(
-                  "cursor-pointer gap-1 transition-all hover:scale-105 backdrop-blur-sm",
+                  "cursor-pointer gap-1 transition-all hover:scale-105",
                   selectedCategory === type 
                     ? "bg-primary hover:bg-primary/90 text-white border-primary shadow-lg shadow-primary/30" 
-                    : "bg-white/10 hover:bg-white/20 border-white/30 text-white"
+                    : "bg-nav-foreground/10 hover:bg-nav-foreground/20 border-nav-foreground/30 text-nav-foreground"
                 )}
                 onClick={() => onCategoryChange(type)}
               >
@@ -224,27 +224,27 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
           {/* Yume at Riverparks Card */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 px-2">
-              <div className="p-1.5 rounded-lg bg-primary/20 backdrop-blur-sm">
+              <div className="p-1.5 rounded-lg bg-primary/20">
                 <Home className="w-4 h-4 text-primary" />
               </div>
-              <h3 className="font-semibold text-white">Your Location</h3>
+              <h3 className="font-semibold text-nav-foreground">your location</h3>
             </div>
             
             <Card
               className={cn(
-                "p-4 cursor-pointer transition-all duration-300 border-2 bg-white/10 backdrop-blur-md hover:scale-[1.02]",
+                "p-4 cursor-pointer transition-all duration-300 border-2 bg-nav-foreground/5 hover:scale-[1.02]",
                 selectedPlace === 'Yume at Riverparks'
-                  ? "border-primary bg-primary/30 shadow-xl shadow-primary/30 ring-2 ring-primary/50"
-                  : "border-white/20 hover:border-white/40 hover:bg-white/15 hover:shadow-lg"
+                  ? "border-primary bg-primary/20 shadow-xl shadow-primary/30 ring-2 ring-primary/50"
+                  : "border-nav-foreground/20 hover:border-nav-foreground/40 hover:bg-nav-foreground/10 hover:shadow-lg"
               )}
               onClick={() => handlePlaceClick('Yume at Riverparks', [120.876, 14.370])}
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-primary drop-shadow-lg" />
-                  <h4 className="font-semibold text-white drop-shadow-md">Yume at Riverparks</h4>
+                  <Home className="w-4 h-4 text-primary" />
+                  <h4 className="font-semibold text-nav-foreground">yume at riverparks</h4>
                 </div>
-                <p className="text-xs text-white/70">General Trias, Cavite</p>
+                <p className="text-xs text-nav-foreground/70">general trias, cavite</p>
               </div>
             </Card>
           </div>
@@ -256,13 +256,13 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
               <div key={type} className="space-y-3">
                 <div className="flex items-center gap-2 px-2">
                   <div className={cn(
-                    "p-1.5 rounded-lg backdrop-blur-md shadow-lg",
-                    `bg-${config.color}/30`
+                    "p-1.5 rounded-lg",
+                    `bg-${config.color}/20`
                   )}>
-                    <Icon className={cn("w-4 h-4 drop-shadow-lg", `text-${config.color}`)} />
+                    <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
                   </div>
-                  <h3 className="font-semibold text-white drop-shadow-md">{config.label}</h3>
-                  <Badge variant="secondary" className="ml-auto bg-white/20 text-white border-white/30 backdrop-blur-sm shadow-md">
+                  <h3 className="font-semibold text-nav-foreground">{config.label}</h3>
+                  <Badge variant="secondary" className="ml-auto bg-nav-foreground/10 text-nav-foreground border-nav-foreground/30">
                     {placesInCategory.length}
                   </Badge>
                 </div>
@@ -272,27 +272,27 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
                     <Card
                       key={place.name}
                       className={cn(
-                        "p-4 cursor-pointer transition-all duration-300 border-2 bg-white/10 backdrop-blur-md hover:scale-[1.02]",
+                        "p-4 cursor-pointer transition-all duration-300 border-2 bg-nav-foreground/5 hover:scale-[1.02]",
                         selectedPlace === place.name
-                          ? `border-${config.color} bg-${config.color}/30 shadow-xl shadow-${config.color}/30 ring-2 ring-${config.color}/50`
-                          : "border-white/20 hover:border-white/40 hover:bg-white/15 hover:shadow-lg"
+                          ? `border-${config.color} bg-${config.color}/20 shadow-xl shadow-${config.color}/30 ring-2 ring-${config.color}/50`
+                          : "border-nav-foreground/20 hover:border-nav-foreground/40 hover:bg-nav-foreground/10 hover:shadow-lg"
                       )}
                       onClick={() => handlePlaceClick(place.name, place.coordinates)}
                     >
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Icon className={cn("w-4 h-4 drop-shadow-lg", `text-${config.color}`)} />
-                          <h4 className="font-medium text-white leading-tight drop-shadow-md">
+                          <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
+                          <h4 className="font-medium text-nav-foreground leading-tight">
                             {place.name}
                           </h4>
                         </div>
 
                         <div className="flex gap-4 text-sm">
-                          <div className="flex items-center gap-1.5 text-white/80">
+                          <div className="flex items-center gap-1.5 text-nav-foreground/70">
                             <Navigation className="w-3.5 h-3.5" />
                             <span>{place.walkDistance}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-white/80">
+                          <div className="flex items-center gap-1.5 text-nav-foreground/70">
                             <Car className="w-3.5 h-3.5" />
                             <span>{place.carDistance}</span>
                           </div>
