@@ -182,11 +182,11 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
   }, {} as Record<string, Place[]>);
 
   return (
-    <div className="h-full flex flex-col bg-card border-r border-border">
-      <div className="p-6 border-b border-border space-y-4">
+    <div className="h-full flex flex-col bg-black/40 backdrop-blur-md border-r border-white/10">
+      <div className="p-6 border-b border-white/10 space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Nearby Places</h2>
-          <p className="text-sm text-muted-foreground mt-1">From Yume at Riverparks</p>
+          <h2 className="text-2xl font-bold text-white">Nearby Places</h2>
+          <p className="text-sm text-white/70 mt-1">From Yume at Riverparks</p>
         </div>
         
         <div className="flex flex-wrap gap-2">
@@ -219,27 +219,27 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
           {/* Yume at Riverparks Card */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 px-2">
-              <div className="p-1.5 rounded-lg bg-primary/10">
+              <div className="p-1.5 rounded-lg bg-primary/20 backdrop-blur-sm">
                 <Home className="w-4 h-4 text-primary" />
               </div>
-              <h3 className="font-semibold text-foreground">Your Location</h3>
+              <h3 className="font-semibold text-white">Your Location</h3>
             </div>
             
             <Card
               className={cn(
-                "p-4 cursor-pointer transition-all duration-200 hover:shadow-md border-2",
+                "p-4 cursor-pointer transition-all duration-200 border-2 bg-white/5 backdrop-blur-sm",
                 selectedPlace === 'Yume at Riverparks'
-                  ? "border-primary bg-primary/5"
-                  : "border-transparent hover:border-border"
+                  ? "border-primary bg-primary/20 shadow-lg shadow-primary/20"
+                  : "border-white/10 hover:border-white/30 hover:bg-white/10"
               )}
               onClick={() => handlePlaceClick('Yume at Riverparks', [120.876, 14.370])}
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Home className="w-4 h-4 text-primary" />
-                  <h4 className="font-semibold text-foreground">Yume at Riverparks</h4>
+                  <h4 className="font-semibold text-white">Yume at Riverparks</h4>
                 </div>
-                <p className="text-xs text-muted-foreground">General Trias, Cavite</p>
+                <p className="text-xs text-white/60">General Trias, Cavite</p>
               </div>
             </Card>
           </div>
@@ -251,13 +251,13 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
               <div key={type} className="space-y-3">
                 <div className="flex items-center gap-2 px-2">
                   <div className={cn(
-                    "p-1.5 rounded-lg",
-                    `bg-${config.color}/10`
+                    "p-1.5 rounded-lg backdrop-blur-sm",
+                    `bg-${config.color}/20`
                   )}>
                     <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
                   </div>
-                  <h3 className="font-semibold text-foreground">{config.label}</h3>
-                  <Badge variant="secondary" className="ml-auto">
+                  <h3 className="font-semibold text-white">{config.label}</h3>
+                  <Badge variant="secondary" className="ml-auto bg-white/10 text-white border-white/20">
                     {placesInCategory.length}
                   </Badge>
                 </div>
@@ -267,27 +267,27 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
                     <Card
                       key={place.name}
                       className={cn(
-                        "p-4 cursor-pointer transition-all duration-200 hover:shadow-md border-2",
+                        "p-4 cursor-pointer transition-all duration-200 border-2 bg-white/5 backdrop-blur-sm",
                         selectedPlace === place.name
-                          ? `border-${config.color} bg-${config.color}/5`
-                          : "border-transparent hover:border-border"
+                          ? `border-${config.color} bg-${config.color}/20 shadow-lg shadow-${config.color}/20`
+                          : "border-white/10 hover:border-white/30 hover:bg-white/10"
                       )}
                       onClick={() => handlePlaceClick(place.name, place.coordinates)}
                     >
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
                           <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
-                          <h4 className="font-medium text-foreground leading-tight">
+                          <h4 className="font-medium text-white leading-tight">
                             {place.name}
                           </h4>
                         </div>
 
                         <div className="flex gap-4 text-sm">
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <div className="flex items-center gap-1.5 text-white/70">
                             <Navigation className="w-3.5 h-3.5" />
                             <span>{place.walkDistance}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <div className="flex items-center gap-1.5 text-white/70">
                             <Car className="w-3.5 h-3.5" />
                             <span>{place.carDistance}</span>
                           </div>

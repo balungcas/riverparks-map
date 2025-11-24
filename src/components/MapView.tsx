@@ -232,12 +232,48 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
       );
       el.appendChild(iconContainer);
 
-      el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.2)';
-      });
+      // Click handler for marker
+      el.addEventListener('click', () => {
+        // Close any existing popup first
+        if (popup.current) {
+          popup.current.remove();
+        }
 
-      el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
+        // Fly to the location
+        if (map.current) {
+          map.current.flyTo({
+            center: place.coordinates,
+            zoom: 16,
+            duration: 1500,
+            pitch: 45,
+          });
+
+          // Create popup with place information
+          const popupContent = `
+            <div style="padding: 8px;">
+              <h3 style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a;">${place.name}</h3>
+              <div style="display: flex; gap: 16px; font-size: 13px; color: #666;">
+                <div>
+                  <div style="font-weight: 500;">Walking</div>
+                  <div>${place.walkDistance}</div>
+                </div>
+                <div>
+                  <div style="font-weight: 500;">Driving</div>
+                  <div>${place.carDistance}</div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          popup.current = new maplibregl.Popup({
+            closeButton: true,
+            closeOnClick: true,
+            offset: 15,
+          })
+            .setLngLat(place.coordinates)
+            .setHTML(popupContent)
+            .addTo(map.current);
+        }
       });
 
       const marker = new maplibregl.Marker({ element: el })
@@ -252,22 +288,46 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
   useEffect(() => {
     if (!map.current || !isLoaded) return;
 
-    // Remove existing popup
+    // Always close any existing popup first
     if (popup.current) {
       popup.current.remove();
     }
 
     // If coordinates are provided directly, use them
     if (highlightedCoordinates && highlightedFeature) {
-      map.current.flyTo({
-        center: highlightedCoordinates,
-        zoom: 16,
-        duration: 1500,
-        pitch: 45,
-      });
+      // Special handling for Yume at Riverparks - zoom to polygon
+      if (highlightedFeature === 'Yume at Riverparks') {
+        fetch('/data/yume-riverpark.geojson')
+          .then((res) => res.json())
+          .then((data) => {
+            const yumePolygon = data.features.find(
+              (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
+            );
 
-      // Find the place data (skip for 'Yume at Riverparks')
-      if (highlightedFeature !== 'Yume at Riverparks') {
+            if (yumePolygon && map.current) {
+              const coordinates = yumePolygon.geometry.coordinates[0];
+              const bounds = coordinates.reduce(
+                (bounds: maplibregl.LngLatBounds, coord: [number, number]) => {
+                  return bounds.extend(coord as [number, number]);
+                },
+                new maplibregl.LngLatBounds(coordinates[0], coordinates[0])
+              );
+
+              map.current.fitBounds(bounds, {
+                padding: 100,
+                duration: 1500,
+              });
+            }
+          });
+      } else {
+        // Regular place - fly to coordinates and show popup
+        map.current.flyTo({
+          center: highlightedCoordinates,
+          zoom: 16,
+          duration: 1500,
+          pitch: 45,
+        });
+
         const place = places.find(p => p.name === highlightedFeature);
         
         if (place) {
