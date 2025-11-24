@@ -182,17 +182,17 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
   }, {} as Record<string, Place[]>);
 
   return (
-    <div className="h-full flex flex-col bg-black/40 backdrop-blur-md border-r border-white/10">
-      <div className="p-6 border-b border-white/10 space-y-4">
+    <div className="h-full flex flex-col bg-black/30 backdrop-blur-xl border-r border-white/20 shadow-2xl">
+      <div className="p-6 border-b border-white/20 space-y-4 bg-gradient-to-b from-white/5 to-transparent">
         <div>
-          <h2 className="text-2xl font-bold text-white">Nearby Places</h2>
-          <p className="text-sm text-white/70 mt-1">From Yume at Riverparks</p>
+          <h2 className="text-2xl font-bold text-white drop-shadow-lg">Nearby Places</h2>
+          <p className="text-sm text-white/80 mt-1">From Yume at Riverparks</p>
         </div>
         
         <div className="flex flex-wrap gap-2">
           <Badge
             variant={selectedCategory === null ? "default" : "outline"}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all hover:scale-105 bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-sm"
             onClick={() => onCategoryChange(null)}
           >
             All
@@ -203,7 +203,12 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
               <Badge
                 key={type}
                 variant={selectedCategory === type ? "default" : "outline"}
-                className="cursor-pointer gap-1"
+                className={cn(
+                  "cursor-pointer gap-1 transition-all hover:scale-105 backdrop-blur-sm",
+                  selectedCategory === type 
+                    ? "bg-primary hover:bg-primary/90 text-white border-primary shadow-lg shadow-primary/30" 
+                    : "bg-white/10 hover:bg-white/20 border-white/30 text-white"
+                )}
                 onClick={() => onCategoryChange(type)}
               >
                 <Icon className="w-3 h-3" />
@@ -227,19 +232,19 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
             
             <Card
               className={cn(
-                "p-4 cursor-pointer transition-all duration-200 border-2 bg-white/5 backdrop-blur-sm",
+                "p-4 cursor-pointer transition-all duration-300 border-2 bg-white/10 backdrop-blur-md hover:scale-[1.02]",
                 selectedPlace === 'Yume at Riverparks'
-                  ? "border-primary bg-primary/20 shadow-lg shadow-primary/20"
-                  : "border-white/10 hover:border-white/30 hover:bg-white/10"
+                  ? "border-primary bg-primary/30 shadow-xl shadow-primary/30 ring-2 ring-primary/50"
+                  : "border-white/20 hover:border-white/40 hover:bg-white/15 hover:shadow-lg"
               )}
               onClick={() => handlePlaceClick('Yume at Riverparks', [120.876, 14.370])}
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-primary" />
-                  <h4 className="font-semibold text-white">Yume at Riverparks</h4>
+                  <Home className="w-4 h-4 text-primary drop-shadow-lg" />
+                  <h4 className="font-semibold text-white drop-shadow-md">Yume at Riverparks</h4>
                 </div>
-                <p className="text-xs text-white/60">General Trias, Cavite</p>
+                <p className="text-xs text-white/70">General Trias, Cavite</p>
               </div>
             </Card>
           </div>
@@ -251,13 +256,13 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
               <div key={type} className="space-y-3">
                 <div className="flex items-center gap-2 px-2">
                   <div className={cn(
-                    "p-1.5 rounded-lg backdrop-blur-sm",
-                    `bg-${config.color}/20`
+                    "p-1.5 rounded-lg backdrop-blur-md shadow-lg",
+                    `bg-${config.color}/30`
                   )}>
-                    <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
+                    <Icon className={cn("w-4 h-4 drop-shadow-lg", `text-${config.color}`)} />
                   </div>
-                  <h3 className="font-semibold text-white">{config.label}</h3>
-                  <Badge variant="secondary" className="ml-auto bg-white/10 text-white border-white/20">
+                  <h3 className="font-semibold text-white drop-shadow-md">{config.label}</h3>
+                  <Badge variant="secondary" className="ml-auto bg-white/20 text-white border-white/30 backdrop-blur-sm shadow-md">
                     {placesInCategory.length}
                   </Badge>
                 </div>
@@ -267,27 +272,27 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: Plac
                     <Card
                       key={place.name}
                       className={cn(
-                        "p-4 cursor-pointer transition-all duration-200 border-2 bg-white/5 backdrop-blur-sm",
+                        "p-4 cursor-pointer transition-all duration-300 border-2 bg-white/10 backdrop-blur-md hover:scale-[1.02]",
                         selectedPlace === place.name
-                          ? `border-${config.color} bg-${config.color}/20 shadow-lg shadow-${config.color}/20`
-                          : "border-white/10 hover:border-white/30 hover:bg-white/10"
+                          ? `border-${config.color} bg-${config.color}/30 shadow-xl shadow-${config.color}/30 ring-2 ring-${config.color}/50`
+                          : "border-white/20 hover:border-white/40 hover:bg-white/15 hover:shadow-lg"
                       )}
                       onClick={() => handlePlaceClick(place.name, place.coordinates)}
                     >
                       <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
-                          <h4 className="font-medium text-white leading-tight">
+                          <Icon className={cn("w-4 h-4 drop-shadow-lg", `text-${config.color}`)} />
+                          <h4 className="font-medium text-white leading-tight drop-shadow-md">
                             {place.name}
                           </h4>
                         </div>
 
                         <div className="flex gap-4 text-sm">
-                          <div className="flex items-center gap-1.5 text-white/70">
+                          <div className="flex items-center gap-1.5 text-white/80">
                             <Navigation className="w-3.5 h-3.5" />
                             <span>{place.walkDistance}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-white/70">
+                          <div className="flex items-center gap-1.5 text-white/80">
                             <Car className="w-3.5 h-3.5" />
                             <span>{place.carDistance}</span>
                           </div>
