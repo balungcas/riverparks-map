@@ -197,14 +197,23 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange, select
           </Badge>
           {Object.entries(categoryConfig).map(([type, config]) => {
             const Icon = config.icon;
+            const isActive = selectedCategory === type;
+            const activeStyles = type === 'hospital' 
+              ? "bg-hospital hover:bg-hospital/90 text-hospital-foreground border-hospital shadow-lg shadow-hospital/30"
+              : type === 'school'
+              ? "bg-school hover:bg-school/90 text-school-foreground border-school shadow-lg shadow-school/30"
+              : type === 'church'
+              ? "bg-church hover:bg-church/90 text-church-foreground border-church shadow-lg shadow-church/30"
+              : "bg-mall hover:bg-mall/90 text-mall-foreground border-mall shadow-lg shadow-mall/30";
+            
             return (
               <Badge
                 key={type}
-                variant={selectedCategory === type ? "default" : "outline"}
+                variant={isActive ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer gap-1 transition-all hover:scale-105",
-                  selectedCategory === type 
-                    ? "bg-primary hover:bg-primary/90 text-white border-primary shadow-lg shadow-primary/30" 
+                  isActive 
+                    ? activeStyles
                     : "bg-nav-foreground/10 hover:bg-nav-foreground/20 border-nav-foreground/30 text-nav-foreground"
                 )}
                 onClick={() => onCategoryChange(type)}
