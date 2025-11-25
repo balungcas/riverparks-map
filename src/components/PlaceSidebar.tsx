@@ -255,9 +255,16 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange, select
                 <div className="flex items-center gap-2 px-2">
                   <div className={cn(
                     "p-1.5 rounded-lg",
-                    `bg-${config.color}/20`
+                    type === 'hospital' ? "bg-red-500/20" :
+                    type === 'school' ? "bg-blue-500/20" :
+                    type === 'church' ? "bg-purple-500/20" : "bg-orange-500/20"
                   )}>
-                    <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
+                    <Icon className={cn(
+                      "w-4 h-4",
+                      type === 'hospital' ? "text-red-500" :
+                      type === 'school' ? "text-blue-500" :
+                      type === 'church' ? "text-purple-500" : "text-orange-500"
+                    )} />
                   </div>
                   <h3 className="font-semibold text-nav-foreground">{config.label}</h3>
                   <Badge variant="secondary" className="ml-auto bg-nav-foreground/10 text-nav-foreground border-nav-foreground/30">
@@ -266,38 +273,57 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange, select
                 </div>
 
                 <div className="space-y-2">
-                  {placesInCategory.map((place) => (
-                    <Card
-                      key={place.name}
-                      className={cn(
-                        "p-4 cursor-pointer transition-all duration-300 border-2 bg-nav-foreground/5 hover:scale-[1.02]",
-                        selectedPlace === place.name
-                          ? `border-${config.color} bg-${config.color}/20 shadow-xl shadow-${config.color}/30 ring-2 ring-${config.color}/50`
-                          : "border-nav-foreground/20 hover:border-nav-foreground/40 hover:bg-nav-foreground/10 hover:shadow-lg"
-                      )}
-                      onClick={() => handlePlaceClick(place.name, place.coordinates)}
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Icon className={cn("w-4 h-4", `text-${config.color}`)} />
-                          <h4 className="font-medium text-nav-foreground leading-tight">
-                            {place.name}
-                          </h4>
-                        </div>
+                  {placesInCategory.map((place) => {
+                    const isSelected = selectedPlace === place.name;
+                    const selectedStyles = type === 'hospital' 
+                      ? "border-red-500 bg-red-500/20 shadow-xl shadow-red-500/30 ring-2 ring-red-500/50"
+                      : type === 'school'
+                      ? "border-blue-500 bg-blue-500/20 shadow-xl shadow-blue-500/30 ring-2 ring-blue-500/50"
+                      : type === 'church'
+                      ? "border-purple-500 bg-purple-500/20 shadow-xl shadow-purple-500/30 ring-2 ring-purple-500/50"
+                      : "border-orange-500 bg-orange-500/20 shadow-xl shadow-orange-500/30 ring-2 ring-orange-500/50";
+                    
+                    const iconColor = type === 'hospital' 
+                      ? "text-red-500"
+                      : type === 'school'
+                      ? "text-blue-500"
+                      : type === 'church'
+                      ? "text-purple-500"
+                      : "text-orange-500";
+                    
+                    return (
+                      <Card
+                        key={place.name}
+                        className={cn(
+                          "p-4 cursor-pointer transition-all duration-300 border-2 bg-nav-foreground/5 hover:scale-[1.02]",
+                          isSelected
+                            ? selectedStyles
+                            : "border-nav-foreground/20 hover:border-nav-foreground/40 hover:bg-nav-foreground/10 hover:shadow-lg"
+                        )}
+                        onClick={() => handlePlaceClick(place.name, place.coordinates)}
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Icon className={cn("w-4 h-4", iconColor)} />
+                            <h4 className="font-medium text-nav-foreground leading-tight">
+                              {place.name}
+                            </h4>
+                          </div>
 
-                        <div className="flex gap-4 text-sm">
-                          <div className="flex items-center gap-1.5 text-nav-foreground/70">
-                            <Navigation className="w-3.5 h-3.5" />
-                            <span>{place.walkDistance}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-nav-foreground/70">
-                            <Car className="w-3.5 h-3.5" />
-                            <span>{place.carDistance}</span>
+                          <div className="flex gap-4 text-sm">
+                            <div className="flex items-center gap-1.5 text-nav-foreground/70">
+                              <Navigation className="w-3.5 h-3.5" />
+                              <span>{place.walkDistance}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-nav-foreground/70">
+                              <Car className="w-3.5 h-3.5" />
+                              <span>{place.carDistance}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             );
