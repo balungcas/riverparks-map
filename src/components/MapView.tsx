@@ -235,51 +235,13 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
       el.appendChild(iconContainer);
 
       // Click handler for marker
-      el.addEventListener('click', () => {
-        // Close any existing popup first
-        if (popup.current) {
-          popup.current.remove();
-        }
-
+      el.addEventListener('click', (e) => {
+        // Prevent click from bubbling to map layers
+        e.stopPropagation();
+        
         // Notify parent component
         if (onMarkerClick) {
           onMarkerClick(place.name, place.coordinates);
-        }
-
-        // Fly to the location
-        if (map.current) {
-          map.current.flyTo({
-            center: place.coordinates,
-            zoom: 16,
-            duration: 1500,
-            pitch: 45,
-          });
-
-          // Create popup with place information
-          const popupContent = `
-            <div style="padding: 8px;">
-              <h3 style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a;">${place.name}</h3>
-              <div style="display: flex; gap: 16px; font-size: 13px; color: #666;">
-                <div>
-                  <div style="font-weight: 500;">Walking</div>
-                  <div>${place.walkDistance}</div>
-                </div>
-                <div>
-                  <div style="font-weight: 500;">Driving</div>
-                  <div>${place.carDistance}</div>
-                </div>
-              </div>
-            </div>
-          `;
-
-          popup.current = new maplibregl.Popup({
-            closeButton: true,
-            closeOnClick: true,
-            offset: 15,
-          })
-            .setLngLat(place.coordinates)
-            .setHTML(popupContent)
-            .addTo(map.current);
         }
       });
 
