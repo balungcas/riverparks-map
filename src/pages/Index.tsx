@@ -12,6 +12,7 @@ const Index = () => {
   const [highlightedFeature, setHighlightedFeature] = useState<string | null>(null);
   const [highlightedCoordinates, setHighlightedCoordinates] = useState<[number, number] | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
 
   const handleApiKeySubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,11 +40,16 @@ const Index = () => {
         <aside className="w-80 flex-shrink-0">
           <PlaceSidebar 
             onPlaceClick={(placeName, coordinates) => {
+              setSelectedPlace(placeName);
               setHighlightedFeature(placeName);
               setHighlightedCoordinates(coordinates || null);
             }}
             selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
+            onCategoryChange={(category) => {
+              setSelectedCategory(category);
+              setSelectedPlace(null);
+            }}
+            selectedPlace={selectedPlace}
           />
         </aside>
 
@@ -101,6 +107,12 @@ const Index = () => {
             highlightedCoordinates={highlightedCoordinates}
             places={places}
             selectedCategory={selectedCategory}
+            selectedPlace={selectedPlace}
+            onMarkerClick={(placeName, coordinates) => {
+              setSelectedPlace(placeName);
+              setHighlightedFeature(placeName);
+              setHighlightedCoordinates(coordinates);
+            }}
           />
         </main>
       </div>

@@ -17,6 +17,7 @@ interface PlaceSidebarProps {
   onPlaceClick: (placeName: string, coordinates?: [number, number]) => void;
   selectedCategory: string | null;
   onCategoryChange: (category: string | null) => void;
+  selectedPlace: string | null;
 }
 
 // Exact locations from Google My Maps KML file
@@ -162,11 +163,8 @@ const categoryConfig = {
   },
 };
 
-const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange }: PlaceSidebarProps) => {
-  const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
-
+const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange, selectedPlace }: PlaceSidebarProps) => {
   const handlePlaceClick = (placeName: string, coordinates?: [number, number]) => {
-    setSelectedPlace(placeName);
     onPlaceClick(placeName, coordinates);
   };
 

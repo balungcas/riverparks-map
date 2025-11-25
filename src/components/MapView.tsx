@@ -13,6 +13,8 @@ interface MapViewProps {
   highlightedCoordinates?: [number, number] | null;
   places: Place[];
   selectedCategory: string | null;
+  selectedPlace?: string | null;
+  onMarkerClick?: (placeName: string, coordinates: [number, number]) => void;
 }
 
 // Icon colors for each category
@@ -30,7 +32,7 @@ const categoryIcons = {
   mall: ShoppingBag,
 };
 
-const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordinates, places, selectedCategory }: MapViewProps) => {
+const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordinates, places, selectedCategory, selectedPlace, onMarkerClick }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const popup = useRef<maplibregl.Popup | null>(null);
@@ -239,6 +241,11 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           popup.current.remove();
         }
 
+        // Notify parent component
+        if (onMarkerClick) {
+          onMarkerClick(place.name, place.coordinates);
+        }
+
         // Fly to the location
         if (map.current) {
           map.current.flyTo({
@@ -282,7 +289,14 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
 
       markers.current.push(marker);
     });
-  }, [isLoaded, places, selectedCategory]);
+  }, [isLoaded, places, selectedCategory, onMarkerClick]);
+
+  // Close popup when category changes
+  useEffect(() => {
+    if (popup.current) {
+      popup.current.remove();
+    }
+  }, [selectedCategory]);
 
   // Handle highlighted feature and coordinates with popup
   useEffect(() => {
