@@ -260,7 +260,7 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange, select
             const Icon = config.icon;
 
             return (
-              <div key={type} className="space-y-3">
+              <div key={type} className="space-y-3 animate-fade-in">
                 <div className="flex items-center gap-2 px-2">
                   <div className={cn(
                     "p-1.5 rounded-lg",
@@ -282,7 +282,7 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange, select
                 </div>
 
                 <div className="space-y-2">
-                  {placesInCategory.map((place) => {
+                  {placesInCategory.map((place, index) => {
                     const isSelected = selectedPlace === place.name;
                     const selectedStyles = type === 'hospital' 
                       ? "border-red-500 bg-red-500/20 shadow-xl shadow-red-500/30 ring-2 ring-red-500/50"
@@ -303,8 +303,9 @@ const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange, select
                     return (
                       <Card
                         key={place.name}
+                        style={{ animationDelay: `${index * 50}ms` }}
                         className={cn(
-                          "p-4 cursor-pointer transition-all duration-300 border-2 bg-nav-foreground/5 hover:scale-[1.02]",
+                          "p-4 cursor-pointer transition-all duration-300 border-2 bg-nav-foreground/5 hover:scale-[1.02] animate-fade-in",
                           isSelected
                             ? selectedStyles
                             : "border-nav-foreground/20 hover:border-nav-foreground/40 hover:bg-nav-foreground/10 hover:shadow-lg"
