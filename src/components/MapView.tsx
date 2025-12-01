@@ -130,24 +130,51 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           },
         });
 
-        // Find and zoom to polygon
+        // Calculate bounds for all locations
+        const allBounds = new maplibregl.LngLatBounds();
+        
+        // Include all place markers
+        places.forEach(place => {
+          allBounds.extend(place.coordinates);
+        });
+
+        // Include the Yume polygon
         const yumePolygon = geojsonData.features.find(
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        if (yumePolygon && map.current) {
-          const coordinates = yumePolygon.geometry.coordinates[0];
-          const bounds = coordinates.reduce(
-            (bounds: maplibregl.LngLatBounds, coord: [number, number]) => {
-              return bounds.extend(coord as [number, number]);
-            },
-            new maplibregl.LngLatBounds(coordinates[0], coordinates[0])
-          );
-
-          map.current.fitBounds(bounds, {
-            padding: 100,
-            duration: 2000,
+        if (yumePolygon) {
+          yumePolygon.geometry.coordinates[0].forEach((coord: [number, number]) => {
+            allBounds.extend(coord);
           });
+        }
+
+        // Set max bounds to restrict map view with extra padding
+        if (map.current) {
+          const sw = allBounds.getSouthWest();
+          const ne = allBounds.getNorthEast();
+          const padding = 0.015; // Add padding in degrees
+          
+          map.current.setMaxBounds([
+            [sw.lng - padding, sw.lat - padding],
+            [ne.lng + padding, ne.lat + padding]
+          ]);
+
+          // Initial zoom to the area
+          const coordinates = yumePolygon?.geometry.coordinates[0];
+          if (coordinates) {
+            const bounds = coordinates.reduce(
+              (bounds: maplibregl.LngLatBounds, coord: [number, number]) => {
+                return bounds.extend(coord as [number, number]);
+              },
+              new maplibregl.LngLatBounds(coordinates[0], coordinates[0])
+            );
+
+            map.current.fitBounds(bounds, {
+              padding: 100,
+              duration: 2000,
+            });
+          }
         }
 
         // Add hover interactions
