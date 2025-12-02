@@ -130,7 +130,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           },
         });
 
-        // Calculate bounds for all locations
+        // Calculate bounds for all locations and features
         const allBounds = new maplibregl.LngLatBounds();
         
         // Include all place markers
@@ -138,16 +138,31 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           allBounds.extend(place.coordinates);
         });
 
-        // Include the Yume polygon
+        // Include all GeoJSON features (polygons, lines, etc.)
+        geojsonData.features.forEach((feature: any) => {
+          if (feature.geometry.type === 'Polygon') {
+            feature.geometry.coordinates[0].forEach((coord: [number, number]) => {
+              allBounds.extend(coord);
+            });
+          } else if (feature.geometry.type === 'LineString') {
+            feature.geometry.coordinates.forEach((coord: [number, number]) => {
+              allBounds.extend(coord);
+            });
+          } else if (feature.geometry.type === 'MultiLineString') {
+            feature.geometry.coordinates.forEach((line: [number, number][]) => {
+              line.forEach((coord: [number, number]) => {
+                allBounds.extend(coord);
+              });
+            });
+          } else if (feature.geometry.type === 'Point') {
+            allBounds.extend(feature.geometry.coordinates);
+          }
+        });
+
+        // Find the Yume polygon for initial zoom
         const yumePolygon = geojsonData.features.find(
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
-
-        if (yumePolygon) {
-          yumePolygon.geometry.coordinates[0].forEach((coord: [number, number]) => {
-            allBounds.extend(coord);
-          });
-        }
 
         // Set max bounds to restrict map view with extra padding
         if (map.current) {
