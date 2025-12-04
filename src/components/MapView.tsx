@@ -86,28 +86,78 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
         );
 
         if (yumePolygon) {
-          const coordinates = yumePolygon.geometry.coordinates[0];
+          const coordinates = yumePolygon.geometry.coordinates[0] as [number, number][];
           
-          // Calculate bounding box from polygon coordinates
-          let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-          coordinates.forEach((coord: [number, number]) => {
-            minLng = Math.min(minLng, coord[0]);
-            maxLng = Math.max(maxLng, coord[0]);
-            minLat = Math.min(minLat, coord[1]);
-            maxLat = Math.max(maxLat, coord[1]);
+          // Calculate minimum oriented bounding rectangle
+          // Find centroid
+          let cx = 0, cy = 0;
+          coordinates.forEach(([lng, lat]) => {
+            cx += lng;
+            cy += lat;
+          });
+          cx /= coordinates.length;
+          cy /= coordinates.length;
+
+          // Find the angle of the longest edge to determine rotation
+          let maxEdgeLength = 0;
+          let rotationAngle = 0;
+          
+          for (let i = 0; i < coordinates.length - 1; i++) {
+            const dx = coordinates[i + 1][0] - coordinates[i][0];
+            const dy = coordinates[i + 1][1] - coordinates[i][1];
+            const length = Math.sqrt(dx * dx + dy * dy);
+            
+            if (length > maxEdgeLength) {
+              maxEdgeLength = length;
+              rotationAngle = Math.atan2(dy, dx);
+            }
+          }
+
+          // Rotate all points to align with axis
+          const rotatedCoords = coordinates.map(([lng, lat]) => {
+            const dx = lng - cx;
+            const dy = lat - cy;
+            const cos = Math.cos(-rotationAngle);
+            const sin = Math.sin(-rotationAngle);
+            return [
+              dx * cos - dy * sin,
+              dx * sin + dy * cos
+            ] as [number, number];
           });
 
-          // Add image source with coordinates matching the polygon bounds
-          // MapLibre expects coordinates in order: top-left, top-right, bottom-right, bottom-left
+          // Find bounding box in rotated space
+          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+          rotatedCoords.forEach(([x, y]) => {
+            minX = Math.min(minX, x);
+            maxX = Math.max(maxX, x);
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+          });
+
+          // Transform corners back to geographic coordinates
+          const cos = Math.cos(rotationAngle);
+          const sin = Math.sin(rotationAngle);
+          
+          const corners = [
+            [minX, maxY], // top-left in rotated space
+            [maxX, maxY], // top-right in rotated space
+            [maxX, minY], // bottom-right in rotated space
+            [minX, minY], // bottom-left in rotated space
+          ].map(([x, y]) => [
+            x * cos - y * sin + cx,
+            x * sin + y * cos + cy
+          ] as [number, number]);
+
+          // Add image source with properly rotated corners
           map.current.addSource('yume-image', {
             type: 'image',
             url: '/images/yume-sdp.png',
             coordinates: [
-              [minLng, maxLat], // top-left
-              [maxLng, maxLat], // top-right
-              [maxLng, minLat], // bottom-right
-              [minLng, minLat], // bottom-left
-            ],
+              corners[0],
+              corners[1],
+              corners[2],
+              corners[3],
+            ] as [[number, number], [number, number], [number, number], [number, number]],
           });
 
           // Add image layer (below markers, above base map)
@@ -116,7 +166,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
             type: 'raster',
             source: 'yume-image',
             paint: {
-              'raster-opacity': 0.9,
+              'raster-opacity': 0.95,
             },
           });
         }
