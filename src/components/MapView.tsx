@@ -80,14 +80,14 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           data: geojsonData,
         });
 
-        // Add polygon layer
+        // Add polygon layer (green for Yume at Riverparks)
         map.current.addLayer({
           id: 'polygons',
           type: 'fill',
           source: 'yume-data',
           filter: ['==', ['geometry-type'], 'Polygon'],
           paint: {
-            'fill-color': '#87db88',
+            'fill-color': '#22c55e',
             'fill-opacity': 0.4,
           },
         });
@@ -99,7 +99,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           source: 'yume-data',
           filter: ['==', ['geometry-type'], 'Polygon'],
           paint: {
-            'line-color': '#87db88',
+            'line-color': '#22c55e',
             'line-width': 2,
           },
         });
@@ -111,7 +111,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           source: 'yume-data',
           filter: ['==', ['geometry-type'], 'LineString'],
           paint: {
-            'line-color': '#9b59b6',
+            'line-color': '#373722',
             'line-width': 3,
             'line-opacity': 0.8,
           },
@@ -124,7 +124,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           source: 'yume-data',
           filter: ['==', ['geometry-type'], 'MultiLineString'],
           paint: {
-            'line-color': '#16a085',
+            'line-color': '#373722',
             'line-width': 3,
             'line-opacity': 0.8,
           },
