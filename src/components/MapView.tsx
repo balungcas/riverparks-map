@@ -80,19 +80,48 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           data: geojsonData,
         });
 
-        // Add polygon layer (green for Yume at Riverparks)
-        map.current.addLayer({
-          id: 'polygons',
-          type: 'fill',
-          source: 'yume-data',
-          filter: ['==', ['geometry-type'], 'Polygon'],
-          paint: {
-            'fill-color': '#22c55e',
-            'fill-opacity': 0.4,
-          },
-        });
+        // Find the Yume at Riverparks polygon and add image overlay
+        const yumePolygon = geojsonData.features.find(
+          (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
+        );
 
-        // Add polygon outline
+        if (yumePolygon) {
+          const coordinates = yumePolygon.geometry.coordinates[0];
+          
+          // Calculate bounding box from polygon coordinates
+          let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+          coordinates.forEach((coord: [number, number]) => {
+            minLng = Math.min(minLng, coord[0]);
+            maxLng = Math.max(maxLng, coord[0]);
+            minLat = Math.min(minLat, coord[1]);
+            maxLat = Math.max(maxLat, coord[1]);
+          });
+
+          // Add image source with coordinates matching the polygon bounds
+          // MapLibre expects coordinates in order: top-left, top-right, bottom-right, bottom-left
+          map.current.addSource('yume-image', {
+            type: 'image',
+            url: '/images/yume-sdp.png',
+            coordinates: [
+              [minLng, maxLat], // top-left
+              [maxLng, maxLat], // top-right
+              [maxLng, minLat], // bottom-right
+              [minLng, minLat], // bottom-left
+            ],
+          });
+
+          // Add image layer (below markers, above base map)
+          map.current.addLayer({
+            id: 'yume-image-layer',
+            type: 'raster',
+            source: 'yume-image',
+            paint: {
+              'raster-opacity': 0.9,
+            },
+          });
+        }
+
+        // Add polygon outline (no fill, since we have the image)
         map.current.addLayer({
           id: 'polygon-outline',
           type: 'line',
@@ -159,10 +188,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           }
         });
 
-        // Find the Yume polygon for initial zoom
-        const yumePolygon = geojsonData.features.find(
-          (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
-        );
+        // Reuse yumePolygon found above for initial zoom
 
         // Set max bounds to restrict map view with extra padding
         if (map.current) {
