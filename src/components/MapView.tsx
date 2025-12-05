@@ -85,77 +85,42 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        if (yumePolygon) {
-          const polygonCoords = yumePolygon.geometry.coordinates[0] as [number, number][];
-          
-          // Calculate the oriented bounding rectangle for image positioning
-          let cx = 0, cy = 0;
-          polygonCoords.forEach(([lng, lat]) => {
-            cx += lng;
-            cy += lat;
-          });
-          cx /= polygonCoords.length;
-          cy /= polygonCoords.length;
+        // Load the SDP image and use as fill-pattern for the polygon
+        const sdpImage = await map.current.loadImage('/images/yume-sdp.png');
+        map.current.addImage('yume-sdp-pattern', sdpImage.data);
 
-          // Find the angle of the longest edge
-          let maxEdgeLength = 0;
-          let rotationAngle = 0;
-          
-          for (let i = 0; i < polygonCoords.length - 1; i++) {
-            const dx = polygonCoords[i + 1][0] - polygonCoords[i][0];
-            const dy = polygonCoords[i + 1][1] - polygonCoords[i][1];
-            const length = Math.sqrt(dx * dx + dy * dy);
-            
-            if (length > maxEdgeLength) {
-              maxEdgeLength = length;
-              rotationAngle = Math.atan2(dy, dx);
+        // Create a separate source with exact polygon coordinates for the filled polygon
+        const yumePolygonCoords: [number, number][] = [
+          [120.91003, 14.38142],
+          [120.90574, 14.37940],
+          [120.90639, 14.37709],
+          [120.91178, 14.37867],
+          [120.91114, 14.38020],
+          [120.91003, 14.38142]
+        ];
+
+        map.current.addSource('yume-polygon-fill', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: { name: 'Yume at Riverparks' },
+            geometry: {
+              type: 'Polygon',
+              coordinates: [yumePolygonCoords]
             }
           }
+        });
 
-          // Calculate rotated bounding box corners for image source
-          const rotatedCoords = polygonCoords.map(([lng, lat]) => {
-            const dx = lng - cx;
-            const dy = lat - cy;
-            const cos = Math.cos(-rotationAngle);
-            const sin = Math.sin(-rotationAngle);
-            return [dx * cos - dy * sin, dx * sin + dy * cos] as [number, number];
-          });
-
-          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-          rotatedCoords.forEach(([x, y]) => {
-            minX = Math.min(minX, x);
-            maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y);
-            maxY = Math.max(maxY, y);
-          });
-
-          const cos = Math.cos(rotationAngle);
-          const sin = Math.sin(rotationAngle);
-          
-          const corners = [
-            [minX, maxY], [maxX, maxY], [maxX, minY], [minX, minY],
-          ].map(([x, y]) => [
-            x * cos - y * sin + cx,
-            x * sin + y * cos + cy
-          ] as [number, number]);
-
-          // Add image source positioned within the polygon area
-          map.current.addSource('yume-image', {
-            type: 'image',
-            url: '/images/yume-sdp.png',
-            coordinates: corners as [[number, number], [number, number], [number, number], [number, number]],
-          });
-
-          // Add image layer with reduced opacity (below markers, above base map)
-          map.current.addLayer({
-            id: 'yume-image-layer',
-            type: 'raster',
-            source: 'yume-image',
-            paint: {
-              'raster-opacity': 0.8,
-            },
-          });
-        }
+        // Add polygon fill with image pattern
+        map.current.addLayer({
+          id: 'yume-polygon-pattern',
+          type: 'fill',
+          source: 'yume-polygon-fill',
+          paint: {
+            'fill-pattern': 'yume-sdp-pattern',
+            'fill-opacity': 0.85,
+          },
+        });
 
         // Add polygon outline (no fill, since we have the image)
         map.current.addLayer({
