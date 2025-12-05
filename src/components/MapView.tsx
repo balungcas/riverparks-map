@@ -80,54 +80,23 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           data: geojsonData,
         });
 
-        // Find the Yume at Riverparks polygon and add image overlay
+        // Find the Yume at Riverparks polygon for initial zoom
         const yumePolygon = geojsonData.features.find(
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        // Add image source with rotated coordinates (counterclockwise ~5 degrees)
-        // Center: [120.90897428228894, 14.37866719542599]
-        const cx = 120.90897428228894;
-        const cy = 14.37866719542599;
-        const angle = 5 * (Math.PI / 180); // 5 degrees counterclockwise
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        
-        // Original corners
-        const corners: [number, number][] = [
-          [120.90590114273420, 14.380889920310139], // top-left
-          [120.91204742184368, 14.380889920310139], // top-right
-          [120.91204742184368, 14.376444470541841], // bottom-right
-          [120.90590114273420, 14.376444470541841], // bottom-left
-        ];
-        
-        // Rotate corners around center
-        const rotatedCorners = corners.map(([x, y]) => {
-          const dx = x - cx;
-          const dy = y - cy;
-          return [
-            cos * dx - sin * dy + cx,
-            sin * dx + cos * dy + cy
-          ] as [number, number];
-        });
-
-        map.current.addSource('yume-image', {
-          type: 'image',
-          url: '/images/yume-sdp.png',
-          coordinates: rotatedCorners as [[number, number], [number, number], [number, number], [number, number]],
-        });
-
-        // Add image layer with opacity
+        // Add polygon fill and outline
         map.current.addLayer({
-          id: 'yume-image-layer',
-          type: 'raster',
-          source: 'yume-image',
+          id: 'polygon-fill',
+          type: 'fill',
+          source: 'yume-data',
+          filter: ['==', ['geometry-type'], 'Polygon'],
           paint: {
-            'raster-opacity': 0.85,
+            'fill-color': '#22c55e',
+            'fill-opacity': 0.3,
           },
         });
 
-        // Add polygon outline (no fill, since we have the image)
         map.current.addLayer({
           id: 'polygon-outline',
           type: 'line',
@@ -225,7 +194,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
         }
 
         // Add hover interactions
-        const layers = ['polygons', 'linestrings', 'multilinestrings'];
+        const layers = ['polygon-fill', 'polygon-outline', 'linestrings', 'multilinestrings'];
         
         layers.forEach((layer) => {
           map.current!.on('mouseenter', layer, (e) => {
