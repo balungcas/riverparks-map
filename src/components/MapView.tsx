@@ -85,17 +85,36 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        // Add image source with exact bounding coordinates from the polygon
-        // Coordinates: top-left, top-right, bottom-right, bottom-left
+        // Add image source with rotated coordinates (counterclockwise ~5 degrees)
+        // Center: [120.90897428228894, 14.37866719542599]
+        const cx = 120.90897428228894;
+        const cy = 14.37866719542599;
+        const angle = 5 * (Math.PI / 180); // 5 degrees counterclockwise
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        
+        // Original corners
+        const corners: [number, number][] = [
+          [120.90590114273420, 14.380889920310139], // top-left
+          [120.91204742184368, 14.380889920310139], // top-right
+          [120.91204742184368, 14.376444470541841], // bottom-right
+          [120.90590114273420, 14.376444470541841], // bottom-left
+        ];
+        
+        // Rotate corners around center
+        const rotatedCorners = corners.map(([x, y]) => {
+          const dx = x - cx;
+          const dy = y - cy;
+          return [
+            cos * dx - sin * dy + cx,
+            sin * dx + cos * dy + cy
+          ] as [number, number];
+        });
+
         map.current.addSource('yume-image', {
           type: 'image',
           url: '/images/yume-sdp.png',
-          coordinates: [
-            [120.90590114273420, 14.380889920310139], // top-left
-            [120.91204742184368, 14.380889920310139], // top-right
-            [120.91204742184368, 14.376444470541841], // bottom-right
-            [120.90590114273420, 14.376444470541841], // bottom-left
-          ],
+          coordinates: rotatedCorners as [[number, number], [number, number], [number, number], [number, number]],
         });
 
         // Add image layer with opacity
