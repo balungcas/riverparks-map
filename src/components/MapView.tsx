@@ -157,10 +157,13 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           });
 
           // Create a mask source - world polygon with hole for Yume polygon
-          // This creates an inverted mask that hides image outside polygon
+          // Outer ring must be counterclockwise, hole must be clockwise
           const worldBounds: [number, number][] = [
-            [119.5, 13.5], [122.5, 13.5], [122.5, 15.5], [119.5, 15.5], [119.5, 13.5]
+            [119.5, 13.5], [119.5, 15.5], [122.5, 15.5], [122.5, 13.5], [119.5, 13.5]
           ];
+          
+          // Reverse the polygon coords for the hole (clockwise winding)
+          const holeCoords = [...polygonCoords].reverse();
           
           map.current.addSource('yume-mask', {
             type: 'geojson',
@@ -169,7 +172,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
               properties: {},
               geometry: {
                 type: 'Polygon',
-                coordinates: [worldBounds, polygonCoords] // Outer ring, then hole
+                coordinates: [worldBounds, holeCoords]
               }
             }
           });
