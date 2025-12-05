@@ -86,25 +86,24 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
         );
 
         if (yumePolygon) {
-          const coordinates = yumePolygon.geometry.coordinates[0] as [number, number][];
+          const polygonCoords = yumePolygon.geometry.coordinates[0] as [number, number][];
           
-          // Calculate minimum oriented bounding rectangle
-          // Find centroid
+          // Calculate the oriented bounding rectangle for image positioning
           let cx = 0, cy = 0;
-          coordinates.forEach(([lng, lat]) => {
+          polygonCoords.forEach(([lng, lat]) => {
             cx += lng;
             cy += lat;
           });
-          cx /= coordinates.length;
-          cy /= coordinates.length;
+          cx /= polygonCoords.length;
+          cy /= polygonCoords.length;
 
-          // Find the angle of the longest edge to determine rotation
+          // Find the angle of the longest edge
           let maxEdgeLength = 0;
           let rotationAngle = 0;
           
-          for (let i = 0; i < coordinates.length - 1; i++) {
-            const dx = coordinates[i + 1][0] - coordinates[i][0];
-            const dy = coordinates[i + 1][1] - coordinates[i][1];
+          for (let i = 0; i < polygonCoords.length - 1; i++) {
+            const dx = polygonCoords[i + 1][0] - polygonCoords[i][0];
+            const dy = polygonCoords[i + 1][1] - polygonCoords[i][1];
             const length = Math.sqrt(dx * dx + dy * dy);
             
             if (length > maxEdgeLength) {
@@ -113,19 +112,15 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
             }
           }
 
-          // Rotate all points to align with axis
-          const rotatedCoords = coordinates.map(([lng, lat]) => {
+          // Calculate rotated bounding box corners for image source
+          const rotatedCoords = polygonCoords.map(([lng, lat]) => {
             const dx = lng - cx;
             const dy = lat - cy;
             const cos = Math.cos(-rotationAngle);
             const sin = Math.sin(-rotationAngle);
-            return [
-              dx * cos - dy * sin,
-              dx * sin + dy * cos
-            ] as [number, number];
+            return [dx * cos - dy * sin, dx * sin + dy * cos] as [number, number];
           });
 
-          // Find bounding box in rotated space
           let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
           rotatedCoords.forEach(([x, y]) => {
             minX = Math.min(minX, x);
@@ -134,39 +129,59 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
             maxY = Math.max(maxY, y);
           });
 
-          // Transform corners back to geographic coordinates
           const cos = Math.cos(rotationAngle);
           const sin = Math.sin(rotationAngle);
           
           const corners = [
-            [minX, maxY], // top-left in rotated space
-            [maxX, maxY], // top-right in rotated space
-            [maxX, minY], // bottom-right in rotated space
-            [minX, minY], // bottom-left in rotated space
+            [minX, maxY], [maxX, maxY], [maxX, minY], [minX, minY],
           ].map(([x, y]) => [
             x * cos - y * sin + cx,
             x * sin + y * cos + cy
           ] as [number, number]);
 
-          // Add image source with properly rotated corners
+          // Add image source
           map.current.addSource('yume-image', {
             type: 'image',
             url: '/images/yume-sdp.png',
-            coordinates: [
-              corners[0],
-              corners[1],
-              corners[2],
-              corners[3],
-            ] as [[number, number], [number, number], [number, number], [number, number]],
+            coordinates: corners as [[number, number], [number, number], [number, number], [number, number]],
           });
 
-          // Add image layer (below markers, above base map)
+          // Add image layer first (will be masked)
           map.current.addLayer({
             id: 'yume-image-layer',
             type: 'raster',
             source: 'yume-image',
             paint: {
-              'raster-opacity': 0.95,
+              'raster-opacity': 1,
+            },
+          });
+
+          // Create a mask source - world polygon with hole for Yume polygon
+          // This creates an inverted mask that hides image outside polygon
+          const worldBounds: [number, number][] = [
+            [119.5, 13.5], [122.5, 13.5], [122.5, 15.5], [119.5, 15.5], [119.5, 13.5]
+          ];
+          
+          map.current.addSource('yume-mask', {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Polygon',
+                coordinates: [worldBounds, polygonCoords] // Outer ring, then hole
+              }
+            }
+          });
+
+          // Add mask layer on top of image to hide everything outside polygon
+          map.current.addLayer({
+            id: 'yume-mask-layer',
+            type: 'fill',
+            source: 'yume-mask',
+            paint: {
+              'fill-color': '#f5f3f0', // Map background color
+              'fill-opacity': 1,
             },
           });
         }
