@@ -139,52 +139,20 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
             x * sin + y * cos + cy
           ] as [number, number]);
 
-          // Add image source
+          // Add image source positioned within the polygon area
           map.current.addSource('yume-image', {
             type: 'image',
             url: '/images/yume-sdp.png',
             coordinates: corners as [[number, number], [number, number], [number, number], [number, number]],
           });
 
-          // Add image layer first (will be masked)
+          // Add image layer with reduced opacity (below markers, above base map)
           map.current.addLayer({
             id: 'yume-image-layer',
             type: 'raster',
             source: 'yume-image',
             paint: {
-              'raster-opacity': 1,
-            },
-          });
-
-          // Create a mask source - world polygon with hole for Yume polygon
-          // Outer ring must be counterclockwise, hole must be clockwise
-          const worldBounds: [number, number][] = [
-            [119.5, 13.5], [119.5, 15.5], [122.5, 15.5], [122.5, 13.5], [119.5, 13.5]
-          ];
-          
-          // Reverse the polygon coords for the hole (clockwise winding)
-          const holeCoords = [...polygonCoords].reverse();
-          
-          map.current.addSource('yume-mask', {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'Polygon',
-                coordinates: [worldBounds, holeCoords]
-              }
-            }
-          });
-
-          // Add mask layer on top of image to hide everything outside polygon
-          map.current.addLayer({
-            id: 'yume-mask-layer',
-            type: 'fill',
-            source: 'yume-mask',
-            paint: {
-              'fill-color': '#f5f3f0', // Map background color
-              'fill-opacity': 1,
+              'raster-opacity': 0.8,
             },
           });
         }
