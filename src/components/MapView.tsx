@@ -85,40 +85,26 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        // Load the SDP image and use as fill-pattern for the polygon
-        const sdpImage = await map.current.loadImage('/images/yume-sdp.png');
-        map.current.addImage('yume-sdp-pattern', sdpImage.data);
-
-        // Create a separate source with exact polygon coordinates for the filled polygon
-        const yumePolygonCoords: [number, number][] = [
-          [120.91003, 14.38142],
-          [120.90574, 14.37940],
-          [120.90639, 14.37709],
-          [120.91178, 14.37867],
-          [120.91114, 14.38020],
-          [120.91003, 14.38142]
-        ];
-
-        map.current.addSource('yume-polygon-fill', {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: { name: 'Yume at Riverparks' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [yumePolygonCoords]
-            }
-          }
+        // Add image source with exact bounding coordinates from the polygon
+        // Coordinates: top-left, top-right, bottom-right, bottom-left
+        map.current.addSource('yume-image', {
+          type: 'image',
+          url: '/images/yume-sdp.png',
+          coordinates: [
+            [120.90590114273420, 14.380889920310139], // top-left
+            [120.91204742184368, 14.380889920310139], // top-right
+            [120.91204742184368, 14.376444470541841], // bottom-right
+            [120.90590114273420, 14.376444470541841], // bottom-left
+          ],
         });
 
-        // Add polygon fill with image pattern
+        // Add image layer with opacity
         map.current.addLayer({
-          id: 'yume-polygon-pattern',
-          type: 'fill',
-          source: 'yume-polygon-fill',
+          id: 'yume-image-layer',
+          type: 'raster',
+          source: 'yume-image',
           paint: {
-            'fill-pattern': 'yume-sdp-pattern',
-            'fill-opacity': 0.85,
+            'raster-opacity': 0.85,
           },
         });
 
