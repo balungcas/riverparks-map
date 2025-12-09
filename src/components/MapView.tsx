@@ -97,13 +97,13 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           },
         });
 
-        // Add georeferenced image with extended coordinates beyond polygon bounds
+        // Add georeferenced image with coordinates matching polygon bounds
         // These are in WGS84 (lng, lat) format
         const imageCoordinates: [[number, number], [number, number], [number, number], [number, number]] = [
-          [120.9050, 14.3815], // top-left (NW) - extended
-          [120.9125, 14.3815], // top-right (NE) - extended
-          [120.9125, 14.3760], // bottom-right (SE) - extended
-          [120.9050, 14.3760], // bottom-left (SW) - extended
+          [120.9058, 14.3812], // top-left (NW)
+          [120.9122, 14.3812], // top-right (NE)
+          [120.9122, 14.3764], // bottom-right (SE)
+          [120.9058, 14.3764], // bottom-left (SW)
         ];
 
         map.current.addSource('yume-sdp-image', {
