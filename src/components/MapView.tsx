@@ -85,72 +85,44 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        // Add georeferenced image from PGW world file
-        // PGW values: pixel size X: 0.2277137518961, pixel size Y: -0.2277137518961
-        // Upper-left center: X=13459153.5165373254567, Y=1617950.5563744110987 (Web Mercator EPSG:3857)
-        // Image dimensions: 1700 x 1100 pixels (approximate from image)
-        const pixelSizeX = 0.2277137518961;
-        const pixelSizeY = -0.2277137518961;
-        const upperLeftX = 13459153.5165373254567;
-        const upperLeftY = 1617950.5563744110987;
-        const imageWidth = 1700;
-        const imageHeight = 1100;
+        // Add polygon outline first
+        map.current.addLayer({
+          id: 'polygon-outline',
+          type: 'line',
+          source: 'yume-data',
+          filter: ['==', ['geometry-type'], 'Polygon'],
+          paint: {
+            'line-color': '#22c55e',
+            'line-width': 2,
+          },
+        });
 
-        // Calculate bounds in Web Mercator
-        const minX = upperLeftX - pixelSizeX / 2;
-        const maxY = upperLeftY - pixelSizeY / 2;
-        const maxX = minX + imageWidth * pixelSizeX;
-        const minY = maxY + imageHeight * pixelSizeY;
-
-        // Convert Web Mercator to WGS84
-        const webMercatorToWgs84 = (x: number, y: number): [number, number] => {
-          const lng = (x / 20037508.34) * 180;
-          const lat = (Math.atan(Math.exp((y / 20037508.34) * Math.PI)) * 360 / Math.PI) - 90;
-          return [lng, lat];
-        };
-
-        const topLeft = webMercatorToWgs84(minX, maxY);
-        const topRight = webMercatorToWgs84(maxX, maxY);
-        const bottomRight = webMercatorToWgs84(maxX, minY);
-        const bottomLeft = webMercatorToWgs84(minX, minY);
+        // Add georeferenced image using the exact polygon coordinates provided by user
+        // These are in WGS84 (lng, lat) format
+        const imageCoordinates: [[number, number], [number, number], [number, number], [number, number]] = [
+          [120.90594567292038, 14.380889920310139], // top-left (NW)
+          [120.91204742184368, 14.380889920310139], // top-right (NE)
+          [120.91204742184368, 14.376444470541841], // bottom-right (SE)
+          [120.90594567292038, 14.376444470541841], // bottom-left (SW)
+        ];
 
         map.current.addSource('yume-sdp-image', {
           type: 'image',
           url: '/images/yume-sdp-georef.png',
-          coordinates: [topLeft, topRight, bottomRight, bottomLeft],
+          coordinates: imageCoordinates,
         });
 
-        map.current.addLayer({
-          id: 'yume-sdp-layer',
-          type: 'raster',
-          source: 'yume-sdp-image',
-          paint: {
-            'raster-opacity': 0.9,
+        map.current.addLayer(
+          {
+            id: 'yume-sdp-layer',
+            type: 'raster',
+            source: 'yume-sdp-image',
+            paint: {
+              'raster-opacity': 0.9,
+            },
           },
-        });
-
-        // Add polygon outline only (no fill since we have the image)
-        map.current.addLayer({
-          id: 'polygon-outline',
-          type: 'line',
-          source: 'yume-data',
-          filter: ['==', ['geometry-type'], 'Polygon'],
-          paint: {
-            'line-color': '#22c55e',
-            'line-width': 2,
-          },
-        });
-
-        map.current.addLayer({
-          id: 'polygon-outline',
-          type: 'line',
-          source: 'yume-data',
-          filter: ['==', ['geometry-type'], 'Polygon'],
-          paint: {
-            'line-color': '#22c55e',
-            'line-width': 2,
-          },
-        });
+          'polygon-outline' // Add below the polygon outline
+        );
 
         // Add LineString layer
         map.current.addLayer({
