@@ -97,70 +97,32 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           },
         });
 
-        // Add georeferenced image using exact PGW world file data
-        // Load image to get actual dimensions, then calculate corners
-        const img = new Image();
-        img.src = '/images/yume-sdp-georef.png';
-        img.onload = () => {
-          if (!map.current) return;
-          
-          // PGW parameters (Web Mercator EPSG:3857)
-          const pixelSizeX = 0.2277137518961;
-          const pixelSizeY = -0.2277137518961;
-          const upperLeftCenterX = 13459153.5165373254567;
-          const upperLeftCenterY = 1617950.5563744110987;
-          
-          // Image dimensions
-          const imgWidth = img.naturalWidth;
-          const imgHeight = img.naturalHeight;
-          
-          // Calculate corner coordinates in Web Mercator
-          // Upper-left corner (adjust from center of pixel to edge)
-          const ulX = upperLeftCenterX - pixelSizeX / 2;
-          const ulY = upperLeftCenterY - pixelSizeY / 2;
-          // Upper-right
-          const urX = ulX + imgWidth * pixelSizeX;
-          const urY = ulY;
-          // Lower-right
-          const lrX = urX;
-          const lrY = ulY + imgHeight * pixelSizeY;
-          // Lower-left
-          const llX = ulX;
-          const llY = lrY;
-          
-          // Convert Web Mercator (EPSG:3857) to WGS84 (EPSG:4326)
-          const webMercatorToWgs84 = (x: number, y: number): [number, number] => {
-            const lng = (x * 180) / 20037508.34;
-            const lat = (Math.atan(Math.exp((y * Math.PI) / 20037508.34)) * 360) / Math.PI - 90;
-            return [lng, lat];
-          };
-          
-          const topLeft = webMercatorToWgs84(ulX, ulY);
-          const topRight = webMercatorToWgs84(urX, urY);
-          const bottomRight = webMercatorToWgs84(lrX, lrY);
-          const bottomLeft = webMercatorToWgs84(llX, llY);
-          
-          console.log('Image dimensions:', imgWidth, 'x', imgHeight);
-          console.log('Corners (WGS84):', { topLeft, topRight, bottomRight, bottomLeft });
-          
-          map.current.addSource('yume-sdp-image', {
-            type: 'image',
-            url: '/images/yume-sdp-georef.png',
-            coordinates: [topLeft, topRight, bottomRight, bottomLeft],
-          });
-          
-          map.current.addLayer(
-            {
-              id: 'yume-sdp-layer',
-              type: 'raster',
-              source: 'yume-sdp-image',
-              paint: {
-                'raster-opacity': 0.9,
-              },
+        // Add georeferenced image using the exact polygon coordinates provided by user
+        // These are in WGS84 (lng, lat) format
+        const imageCoordinates: [[number, number], [number, number], [number, number], [number, number]] = [
+          [120.90594567292038, 14.380889920310139], // top-left (NW)
+          [120.91204742184368, 14.380889920310139], // top-right (NE)
+          [120.91204742184368, 14.376444470541841], // bottom-right (SE)
+          [120.90594567292038, 14.376444470541841], // bottom-left (SW)
+        ];
+
+        map.current.addSource('yume-sdp-image', {
+          type: 'image',
+          url: '/images/yume-sdp-georef.png',
+          coordinates: imageCoordinates,
+        });
+
+        map.current.addLayer(
+          {
+            id: 'yume-sdp-layer',
+            type: 'raster',
+            source: 'yume-sdp-image',
+            paint: {
+              'raster-opacity': 0.9,
             },
-            'polygon-outline'
-          );
-        };
+          },
+          'polygon-outline' // Add below the polygon outline
+        );
 
         // Add LineString layer
         map.current.addLayer({
