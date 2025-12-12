@@ -47,12 +47,12 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
 // Line 5: X coordinate of the CENTER of the upper-left pixel
 // Line 6: Y coordinate of the CENTER of the upper-left pixel
 const PGW = {
-  A: 0.2277137518961,                 // pixel width in map units (meters)
+  A: 0.2343958881236,                 // pixel width in map units (meters)
   D: 0.0,                              // rotation term (usually 0)
   B: 0.0,                              // rotation term (usually 0)
-  E: -0.2277137518961,                // pixel height in map units (negative)
-  C: 13459153.5165373254567,          // X coord of upper-left pixel center
-  F: 1617950.5563744110987,           // Y coord of upper-left pixel center
+  E: -0.2343958881240,                // pixel height in map units (negative)
+  C: 13459121.4288101829588,          // X coord of upper-left pixel center
+  F: 1618050.4865603940561,           // Y coord of upper-left pixel center
 };
 
 // Calculate image bounds from PGW and actual image dimensions
