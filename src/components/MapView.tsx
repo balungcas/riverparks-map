@@ -85,44 +85,87 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        // Add polygon outline first
-        map.current.addLayer({
-          id: 'polygon-outline',
-          type: 'line',
-          source: 'yume-data',
-          filter: ['==', ['geometry-type'], 'Polygon'],
-          paint: {
-            'line-color': '#22c55e',
-            'line-width': 2,
-          },
-        });
+        // Load image and add as fill-pattern inside polygon for precise clipping
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = '/images/yume-sdp-georef.png';
+        
+        img.onload = () => {
+          if (!map.current) return;
+          
+          // Add the image to the map
+          if (!map.current.hasImage('yume-pattern')) {
+            map.current.addImage('yume-pattern', img);
+          }
 
-        // Add georeferenced image with coordinates matching polygon bounds
-        // These are in WGS84 (lng, lat) format
-        const imageCoordinates: [[number, number], [number, number], [number, number], [number, number]] = [
-          [120.9058, 14.3812], // top-left (NW)
-          [120.9122, 14.3812], // top-right (NE)
-          [120.9122, 14.3764], // bottom-right (SE)
-          [120.9058, 14.3764], // bottom-left (SW)
-        ];
-
-        map.current.addSource('yume-sdp-image', {
-          type: 'image',
-          url: '/images/yume-sdp-georef.png',
-          coordinates: imageCoordinates,
-        });
-
-        map.current.addLayer(
-          {
-            id: 'yume-sdp-layer',
-            type: 'raster',
-            source: 'yume-sdp-image',
+          // Add polygon fill with pattern - this clips precisely to polygon bounds
+          map.current.addLayer({
+            id: 'polygon-fill',
+            type: 'fill',
+            source: 'yume-data',
+            filter: ['==', ['geometry-type'], 'Polygon'],
             paint: {
-              'raster-opacity': 0.9,
+              'fill-pattern': 'yume-pattern',
+              'fill-opacity': 0.9,
             },
-          },
-          'polygon-outline' // Add below the polygon outline
-        );
+          });
+
+          // Add polygon outline on top
+          map.current.addLayer({
+            id: 'polygon-outline',
+            type: 'line',
+            source: 'yume-data',
+            filter: ['==', ['geometry-type'], 'Polygon'],
+            paint: {
+              'line-color': '#22c55e',
+              'line-width': 2,
+            },
+          });
+
+          // Add hover/click interactions for polygon layers
+          const polygonLayers = ['polygon-fill', 'polygon-outline'];
+          polygonLayers.forEach((layer) => {
+            map.current!.on('mouseenter', layer, (e) => {
+              if (!map.current || !popup.current) return;
+              map.current.getCanvas().style.cursor = 'pointer';
+              const feature = e.features?.[0];
+              if (feature && feature.properties) {
+                const name = feature.properties.text || feature.properties.name || 'Unnamed';
+                popup.current
+                  .setLngLat(e.lngLat)
+                  .setHTML(`<div class="text-sm font-medium">${name}</div>`)
+                  .addTo(map.current);
+              }
+            });
+            map.current!.on('mouseleave', layer, () => {
+              if (!map.current || !popup.current) return;
+              map.current.getCanvas().style.cursor = '';
+              popup.current.remove();
+            });
+            map.current!.on('click', layer, (e) => {
+              const feature = e.features?.[0];
+              if (feature && onFeatureClick) {
+                onFeatureClick(feature);
+              }
+            });
+          });
+        };
+
+        img.onerror = () => {
+          console.error('Failed to load pattern image');
+          // Fallback: just add outline without fill
+          if (!map.current) return;
+          map.current.addLayer({
+            id: 'polygon-outline',
+            type: 'line',
+            source: 'yume-data',
+            filter: ['==', ['geometry-type'], 'Polygon'],
+            paint: {
+              'line-color': '#22c55e',
+              'line-width': 2,
+            },
+          });
+        };
 
         // Add LineString layer
         map.current.addLayer({
@@ -209,10 +252,11 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           }
         }
 
-        // Add hover interactions
-        const layers = ['polygon-outline', 'linestrings', 'multilinestrings'];
+        // Add hover interactions (some layers may be added later asynchronously)
+        const interactiveLayers = ['linestrings', 'multilinestrings'];
         
-        layers.forEach((layer) => {
+        // Add interaction for layers that exist now
+        interactiveLayers.forEach((layer) => {
           map.current!.on('mouseenter', layer, (e) => {
             if (!map.current || !popup.current) return;
             map.current.getCanvas().style.cursor = 'pointer';
