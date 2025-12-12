@@ -51,8 +51,8 @@ const PGW = {
   D: 0.0,                              // rotation term (usually 0)
   B: 0.0,                              // rotation term (usually 0)
   E: -0.2343958881240,                // pixel height in map units (negative)
-  C: 13459121.4288101829588,          // X coord of upper-left pixel center
-  F: 1618050.4865603940561,           // Y coord of upper-left pixel center
+  C: 13458885.0,                       // X coord of upper-left pixel center (adjusted)
+  F: 1618280.0,                        // Y coord of upper-left pixel center (adjusted)
 };
 
 // Calculate image bounds from PGW and actual image dimensions
