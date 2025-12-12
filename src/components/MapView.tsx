@@ -39,20 +39,16 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
   return [lng, lat];
 };
 
-// Image bounds aligned to the Yume at Riverparks polygon
-// Coordinates derived from polygon vertices to ensure perfect alignment
+// Image bounds aligned exactly to the Yume at Riverparks polygon bounding box
 const getImageBounds = (): [[number, number], [number, number], [number, number], [number, number]] => {
-  // MapLibre expects: [top-left, top-right, bottom-right, bottom-left]
-  // Polygon bounds from GeoJSON:
-  // Top-left (NW): approx [120.9059, 14.3809]
-  // Top-right (NE): approx [120.9120, 14.3809]
-  // Bottom-right (SE): approx [120.9120, 14.3764]
-  // Bottom-left (SW): approx [120.9059, 14.3764]
+  // Exact bounding box from polygon vertices:
+  // Min lng: 120.9059011427342, Max lng: 120.91204742184368
+  // Min lat: 14.376444470541841, Max lat: 14.380889920310139
   
-  const topLeft: [number, number] = [120.90590, 14.38095];
-  const topRight: [number, number] = [120.91205, 14.38095];
-  const bottomRight: [number, number] = [120.91205, 14.37645];
-  const bottomLeft: [number, number] = [120.90590, 14.37645];
+  const topLeft: [number, number] = [120.9059011427342, 14.380889920310139];
+  const topRight: [number, number] = [120.91204742184368, 14.380889920310139];
+  const bottomRight: [number, number] = [120.91204742184368, 14.376444470541841];
+  const bottomLeft: [number, number] = [120.9059011427342, 14.376444470541841];
   
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
