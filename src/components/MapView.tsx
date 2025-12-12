@@ -39,60 +39,21 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
   return [lng, lat];
 };
 
-// PGW file data (EPSG:3857 / Web Mercator)
-// Line 1: pixel size in X direction (map units per pixel)
-// Line 2: rotation about Y axis (usually 0)
-// Line 3: rotation about X axis (usually 0)
-// Line 4: pixel size in Y direction (negative = Y decreases as row increases)
-// Line 5: X coordinate of the CENTER of the upper-left pixel
-// Line 6: Y coordinate of the CENTER of the upper-left pixel
-const PGW = {
-  A: 0.2343958881236,                 // pixel width in map units (meters)
-  D: 0.0,                              // rotation term (usually 0)
-  B: 0.0,                              // rotation term (usually 0)
-  E: -0.2343958881240,                // pixel height in map units (negative)
-  C: 13458885.0,                       // X coord of upper-left pixel center (adjusted)
-  F: 1618280.0,                        // Y coord of upper-left pixel center (adjusted)
-};
-
-// Calculate image bounds from PGW and actual image dimensions
-const calculateImageBoundsFromPGW = (imageWidth: number, imageHeight: number): [[number, number], [number, number], [number, number], [number, number]] => {
-  // The PGW gives the center of the upper-left pixel
-  // We need to find the actual corner of the image (edge of first pixel)
-  
-  // Upper-left corner (edge, not center)
-  const ulX = PGW.C - PGW.A / 2;
-  const ulY = PGW.F - PGW.E / 2; // E is negative, so this adds
-  
-  // Upper-right corner
-  const urX = ulX + imageWidth * PGW.A;
-  const urY = ulY + imageWidth * PGW.D; // D is 0 if no rotation
-  
-  // Lower-left corner
-  const llX = ulX + imageHeight * PGW.B; // B is 0 if no rotation
-  const llY = ulY + imageHeight * PGW.E; // E is negative
-  
-  // Lower-right corner
-  const lrX = ulX + imageWidth * PGW.A + imageHeight * PGW.B;
-  const lrY = ulY + imageWidth * PGW.D + imageHeight * PGW.E;
-  
-  // Convert to WGS84 [lng, lat]
-  const topLeft = webMercatorToWGS84(ulX, ulY);
-  const topRight = webMercatorToWGS84(urX, urY);
-  const bottomRight = webMercatorToWGS84(lrX, lrY);
-  const bottomLeft = webMercatorToWGS84(llX, llY);
-  
-  console.log('PGW bounds calculation:');
-  console.log('Image dimensions:', imageWidth, 'x', imageHeight);
-  console.log('Upper-left (EPSG:3857):', ulX, ulY);
-  console.log('Lower-right (EPSG:3857):', lrX, lrY);
-  console.log('Coordinates (WGS84):');
-  console.log('  Top-left:', topLeft);
-  console.log('  Top-right:', topRight);
-  console.log('  Bottom-right:', bottomRight);
-  console.log('  Bottom-left:', bottomLeft);
-  
+// Image bounds aligned to the Yume at Riverparks polygon
+// Coordinates derived from polygon vertices to ensure perfect alignment
+const getImageBounds = (): [[number, number], [number, number], [number, number], [number, number]] => {
   // MapLibre expects: [top-left, top-right, bottom-right, bottom-left]
+  // Polygon bounds from GeoJSON:
+  // Top-left (NW): approx [120.9059, 14.3809]
+  // Top-right (NE): approx [120.9120, 14.3809]
+  // Bottom-right (SE): approx [120.9120, 14.3764]
+  // Bottom-left (SW): approx [120.9059, 14.3764]
+  
+  const topLeft: [number, number] = [120.90590, 14.38095];
+  const topRight: [number, number] = [120.91205, 14.38095];
+  const bottomRight: [number, number] = [120.91205, 14.37645];
+  const bottomLeft: [number, number] = [120.90590, 14.37645];
+  
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
 
@@ -149,23 +110,8 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        // Load the georeferenced image to get its exact dimensions
-        const loadGeoreferencedImage = (): Promise<[[number, number], [number, number], [number, number], [number, number]]> => {
-          return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-              const coords = calculateImageBoundsFromPGW(img.naturalWidth, img.naturalHeight);
-              resolve(coords);
-            };
-            img.onerror = () => reject(new Error('Failed to load image'));
-            img.src = '/images/yume-sdp-georef.png';
-          });
-        };
-
-        // Get actual image dimensions and calculate correct bounds
-        const imageCoordinates = await loadGeoreferencedImage();
-        console.log('Final image coordinates for MapLibre:', imageCoordinates);
+        // Get image bounds aligned to the polygon
+        const imageCoordinates = getImageBounds();
 
         // Add georeferenced image source with exact PGW-derived coordinates
         map.current.addSource('yume-sdp-image', {
