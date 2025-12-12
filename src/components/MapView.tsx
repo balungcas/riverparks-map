@@ -39,16 +39,18 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
   return [lng, lat];
 };
 
-// Image bounds aligned exactly to the Yume at Riverparks polygon bounding box
+// Image bounds from GPX waypoints
 const getImageBounds = (): [[number, number], [number, number], [number, number], [number, number]] => {
-  // Exact bounding box from polygon vertices:
-  // Min lng: 120.9059011427342, Max lng: 120.91204742184368
-  // Min lat: 14.376444470541841, Max lat: 14.380889920310139
+  // GPX Waypoints:
+  // WP01-A: lat 14.37938, lon 120.90576 (top-left)
+  // WP02-B: lat 14.38144, lon 120.90998 (top-right)
+  // WP03-C: lat 14.37918, lon 120.91158 (bottom-right)
+  // WP04-D: lat 14.37751, lon 120.90626 (bottom-left)
   
-  const topLeft: [number, number] = [120.9059011427342, 14.380889920310139];
-  const topRight: [number, number] = [120.91204742184368, 14.380889920310139];
-  const bottomRight: [number, number] = [120.91204742184368, 14.376444470541841];
-  const bottomLeft: [number, number] = [120.9059011427342, 14.376444470541841];
+  const topLeft: [number, number] = [120.90576, 14.37938];
+  const topRight: [number, number] = [120.90998, 14.38144];
+  const bottomRight: [number, number] = [120.91158, 14.37918];
+  const bottomLeft: [number, number] = [120.90626, 14.37751];
   
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
