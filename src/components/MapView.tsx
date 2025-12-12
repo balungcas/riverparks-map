@@ -32,6 +32,46 @@ const categoryIcons = {
   mall: ShoppingBag,
 };
 
+// Convert EPSG:3857 (Web Mercator) to WGS84 (lng, lat)
+const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
+  const lng = (x / 20037508.34) * 180;
+  const lat = (Math.atan(Math.exp((y / 20037508.34) * Math.PI)) * 360) / Math.PI - 90;
+  return [lng, lat];
+};
+
+// PGW file data (EPSG:3857 / Web Mercator)
+const PGW = {
+  pixelSizeX: 0.2277137518961,      // Line 1: pixel size in X (meters)
+  rotationY: 0.0,                    // Line 2: rotation about Y axis
+  rotationX: 0.0,                    // Line 3: rotation about X axis
+  pixelSizeY: -0.2277137518961,     // Line 4: pixel size in Y (negative = Y goes down)
+  upperLeftX: 13459153.5165373254567, // Line 5: X coord of upper-left pixel center
+  upperLeftY: 1617950.5563744110987,  // Line 6: Y coord of upper-left pixel center
+};
+
+// Image dimensions (approximate - adjust if you know exact dimensions)
+const IMAGE_WIDTH_PX = 1700;
+const IMAGE_HEIGHT_PX = 1100;
+
+// Calculate image bounds in EPSG:3857
+const calculateImageBounds = () => {
+  // Adjust from pixel center to pixel edge for upper-left corner
+  const ulX = PGW.upperLeftX - PGW.pixelSizeX / 2;
+  const ulY = PGW.upperLeftY - PGW.pixelSizeY / 2; // Note: pixelSizeY is negative
+
+  // Calculate lower-right corner
+  const lrX = ulX + IMAGE_WIDTH_PX * PGW.pixelSizeX;
+  const lrY = ulY + IMAGE_HEIGHT_PX * PGW.pixelSizeY; // pixelSizeY is negative, so this subtracts
+
+  // Convert all corners to WGS84 [lng, lat]
+  const topLeft = webMercatorToWGS84(ulX, ulY);
+  const topRight = webMercatorToWGS84(lrX, ulY);
+  const bottomRight = webMercatorToWGS84(lrX, lrY);
+  const bottomLeft = webMercatorToWGS84(ulX, lrY);
+
+  return { topLeft, topRight, bottomRight, bottomLeft };
+};
+
 const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordinates, places, selectedCategory, selectedPlace, onMarkerClick }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
@@ -74,7 +114,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
         const response = await fetch('/data/yume-riverpark.geojson');
         const geojsonData = await response.json();
 
-        // Add source
+        // Add GeoJSON source
         map.current.addSource('yume-data', {
           type: 'geojson',
           data: geojsonData,
@@ -85,87 +125,74 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        // Load image and add as fill-pattern inside polygon for precise clipping
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = '/images/yume-sdp-georef.png';
+        // Calculate georeferenced image coordinates from PGW
+        const bounds = calculateImageBounds();
         
-        img.onload = () => {
-          if (!map.current) return;
-          
-          // Add the image to the map
-          if (!map.current.hasImage('yume-pattern')) {
-            map.current.addImage('yume-pattern', img);
+        // MapLibre image source expects: [top-left, top-right, bottom-right, bottom-left]
+        const imageCoordinates: [[number, number], [number, number], [number, number], [number, number]] = [
+          bounds.topLeft,
+          bounds.topRight,
+          bounds.bottomRight,
+          bounds.bottomLeft,
+        ];
+
+        console.log('Image coordinates (WGS84):', imageCoordinates);
+
+        // Add georeferenced image source
+        map.current.addSource('yume-sdp-image', {
+          type: 'image',
+          url: '/images/yume-sdp-georef.png',
+          coordinates: imageCoordinates,
+        });
+
+        // Add raster layer for the georeferenced image
+        // Place it above base map but below labels by using 'beforeId'
+        // Find a suitable label layer to insert before
+        const layers = map.current.getStyle().layers;
+        let labelLayerId: string | undefined;
+        for (const layer of layers || []) {
+          if (layer.type === 'symbol' && layer.layout?.['text-field']) {
+            labelLayerId = layer.id;
+            break;
           }
+        }
 
-          // Add polygon fill with pattern - this clips precisely to polygon bounds
-          map.current.addLayer({
-            id: 'polygon-fill',
-            type: 'fill',
-            source: 'yume-data',
-            filter: ['==', ['geometry-type'], 'Polygon'],
+        map.current.addLayer(
+          {
+            id: 'yume-sdp-layer',
+            type: 'raster',
+            source: 'yume-sdp-image',
             paint: {
-              'fill-pattern': 'yume-pattern',
-              'fill-opacity': 0.9,
+              'raster-opacity': 0.95,
+              'raster-fade-duration': 0,
             },
-          });
+          },
+          labelLayerId // Insert below labels
+        );
 
-          // Add polygon outline on top
-          map.current.addLayer({
-            id: 'polygon-outline',
-            type: 'line',
-            source: 'yume-data',
-            filter: ['==', ['geometry-type'], 'Polygon'],
-            paint: {
-              'line-color': '#22c55e',
-              'line-width': 2,
-            },
-          });
+        // Add polygon outline layer (above raster, for interaction)
+        map.current.addLayer({
+          id: 'polygon-outline',
+          type: 'line',
+          source: 'yume-data',
+          filter: ['==', ['geometry-type'], 'Polygon'],
+          paint: {
+            'line-color': '#22c55e',
+            'line-width': 2,
+          },
+        });
 
-          // Add hover/click interactions for polygon layers
-          const polygonLayers = ['polygon-fill', 'polygon-outline'];
-          polygonLayers.forEach((layer) => {
-            map.current!.on('mouseenter', layer, (e) => {
-              if (!map.current || !popup.current) return;
-              map.current.getCanvas().style.cursor = 'pointer';
-              const feature = e.features?.[0];
-              if (feature && feature.properties) {
-                const name = feature.properties.text || feature.properties.name || 'Unnamed';
-                popup.current
-                  .setLngLat(e.lngLat)
-                  .setHTML(`<div class="text-sm font-medium">${name}</div>`)
-                  .addTo(map.current);
-              }
-            });
-            map.current!.on('mouseleave', layer, () => {
-              if (!map.current || !popup.current) return;
-              map.current.getCanvas().style.cursor = '';
-              popup.current.remove();
-            });
-            map.current!.on('click', layer, (e) => {
-              const feature = e.features?.[0];
-              if (feature && onFeatureClick) {
-                onFeatureClick(feature);
-              }
-            });
-          });
-        };
-
-        img.onerror = () => {
-          console.error('Failed to load pattern image');
-          // Fallback: just add outline without fill
-          if (!map.current) return;
-          map.current.addLayer({
-            id: 'polygon-outline',
-            type: 'line',
-            source: 'yume-data',
-            filter: ['==', ['geometry-type'], 'Polygon'],
-            paint: {
-              'line-color': '#22c55e',
-              'line-width': 2,
-            },
-          });
-        };
+        // Add invisible polygon fill for click/hover detection
+        map.current.addLayer({
+          id: 'polygon-fill',
+          type: 'fill',
+          source: 'yume-data',
+          filter: ['==', ['geometry-type'], 'Polygon'],
+          paint: {
+            'fill-color': 'transparent',
+            'fill-opacity': 0,
+          },
+        });
 
         // Add LineString layer
         map.current.addLayer({
@@ -222,40 +249,37 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           }
         });
 
-        // Reuse yumePolygon found above for initial zoom
-
         // Set max bounds to restrict map view with extra padding
         if (map.current) {
           const sw = allBounds.getSouthWest();
           const ne = allBounds.getNorthEast();
-          const padding = 0.015; // Add padding in degrees
+          const padding = 0.015;
           
           map.current.setMaxBounds([
             [sw.lng - padding, sw.lat - padding],
             [ne.lng + padding, ne.lat + padding]
           ]);
 
-          // Initial zoom to the area
+          // Initial zoom to the polygon area
           const coordinates = yumePolygon?.geometry.coordinates[0];
           if (coordinates) {
-            const bounds = coordinates.reduce(
+            const polygonBounds = coordinates.reduce(
               (bounds: maplibregl.LngLatBounds, coord: [number, number]) => {
                 return bounds.extend(coord as [number, number]);
               },
               new maplibregl.LngLatBounds(coordinates[0], coordinates[0])
             );
 
-            map.current.fitBounds(bounds, {
+            map.current.fitBounds(polygonBounds, {
               padding: 100,
               duration: 2000,
             });
           }
         }
 
-        // Add hover interactions (some layers may be added later asynchronously)
-        const interactiveLayers = ['linestrings', 'multilinestrings'];
+        // Add hover interactions for all interactive layers
+        const interactiveLayers = ['polygon-fill', 'polygon-outline', 'linestrings', 'multilinestrings'];
         
-        // Add interaction for layers that exist now
         interactiveLayers.forEach((layer) => {
           map.current!.on('mouseenter', layer, (e) => {
             if (!map.current || !popup.current) return;
@@ -338,10 +362,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
 
       // Click handler for marker
       el.addEventListener('click', (e) => {
-        // Prevent click from bubbling to map layers
         e.stopPropagation();
-        
-        // Notify parent component
         if (onMarkerClick) {
           onMarkerClick(place.name, place.coordinates);
         }
@@ -409,7 +430,6 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
         const place = places.find(p => p.name === highlightedFeature);
         
         if (place) {
-          // Create popup with place information
           const popupContent = `
             <div style="padding: 8px;">
               <h3 style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a;">${place.name}</h3>
@@ -455,7 +475,6 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
         );
 
         if (feature && map.current) {
-          // Calculate bounds
           let bounds = new maplibregl.LngLatBounds();
           
           if (feature.geometry.type === 'Point') {
