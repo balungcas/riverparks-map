@@ -39,13 +39,13 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
   return [lng, lat];
 };
 
-// Image bounds adjusted to align with polygon
+// Image bounds aligned to polygon corners (matching reference image alignment)
 const getImageBounds = (): [[number, number], [number, number], [number, number], [number, number]] => {
-  // Adjusted from GPX waypoints - shifted right and down to match polygon
-  const topLeft: [number, number] = [120.90590, 14.37855];
-  const topRight: [number, number] = [120.91062, 14.38089];
-  const bottomRight: [number, number] = [120.91205, 14.37809];
-  const bottomLeft: [number, number] = [120.90657, 14.37644];
+  // Yume at Riverparks polygon corner points for precise alignment
+  const topLeft: [number, number] = [120.90555, 14.37920];
+  const topRight: [number, number] = [120.91010, 14.38135];
+  const bottomRight: [number, number] = [120.91170, 14.37870];
+  const bottomLeft: [number, number] = [120.90635, 14.37705];
   
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
