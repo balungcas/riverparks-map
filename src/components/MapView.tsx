@@ -39,13 +39,12 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
   return [lng, lat];
 };
 
-// Image bounds aligned and slightly stretched to tightly match polygon
+// Image bounds with user-specified coordinates
 const getImageBounds = (): [[number, number], [number, number], [number, number], [number, number]] => {
-  // Fine‑tuned from polygon corners: expanded a bit to stretch image
-  const topLeft: [number, number] = [120.90535, 14.37935];   // move a bit further left/up
-  const topRight: [number, number] = [120.91040, 14.38155];  // move further right/up
-  const bottomRight: [number, number] = [120.91210, 14.37840]; // move further right/down
-  const bottomLeft: [number, number] = [120.90605, 14.37680];  // move further left/down
+  const topLeft: [number, number] = [120.911540, 14.378624];
+  const topRight: [number, number] = [120.910025, 14.381254];
+  const bottomRight: [number, number] = [120.905747, 14.379416];
+  const bottomLeft: [number, number] = [120.906445, 14.377167];
 
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
