@@ -39,18 +39,13 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
   return [lng, lat];
 };
 
-// Image bounds from GPX waypoints
+// Image bounds adjusted to align with polygon
 const getImageBounds = (): [[number, number], [number, number], [number, number], [number, number]] => {
-  // GPX Waypoints:
-  // WP01-A: lat 14.37938, lon 120.90576 (top-left)
-  // WP02-B: lat 14.38144, lon 120.90998 (top-right)
-  // WP03-C: lat 14.37918, lon 120.91158 (bottom-right)
-  // WP04-D: lat 14.37751, lon 120.90626 (bottom-left)
-  
-  const topLeft: [number, number] = [120.90576, 14.37938];
-  const topRight: [number, number] = [120.90998, 14.38144];
-  const bottomRight: [number, number] = [120.91158, 14.37918];
-  const bottomLeft: [number, number] = [120.90626, 14.37751];
+  // Adjusted from GPX waypoints - shifted right and down to match polygon
+  const topLeft: [number, number] = [120.90590, 14.37855];
+  const topRight: [number, number] = [120.91062, 14.38089];
+  const bottomRight: [number, number] = [120.91205, 14.37809];
+  const bottomLeft: [number, number] = [120.90657, 14.37644];
   
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
