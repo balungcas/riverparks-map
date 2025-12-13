@@ -39,13 +39,12 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
   return [lng, lat];
 };
 
-// Image bounds corrected - MapLibre expects: topLeft, topRight, bottomRight, bottomLeft
+// Image bounds - user-specified coordinates
 const getImageBounds = (): [[number, number], [number, number], [number, number], [number, number]] => {
-  // Corrected orientation based on user coordinates
-  const topLeft: [number, number] = [120.905747, 14.379416];     // NW corner
-  const topRight: [number, number] = [120.910025, 14.381254];    // NE corner  
-  const bottomRight: [number, number] = [120.911540, 14.378624]; // SE corner
-  const bottomLeft: [number, number] = [120.906445, 14.377167];  // SW corner
+  const topLeft: [number, number] = [120.911552, 14.379081];
+  const topRight: [number, number] = [120.910066, 14.381315];
+  const bottomRight: [number, number] = [120.905839, 14.379270];
+  const bottomLeft: [number, number] = [120.906386, 14.377408];
 
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
