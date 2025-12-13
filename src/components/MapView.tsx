@@ -39,12 +39,13 @@ const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
   return [lng, lat];
 };
 
-// Image bounds - user-specified coordinates
+// Image bounds - ordered to avoid distortion (topLeft, topRight, bottomRight, bottomLeft)
 const getImageBounds = (): [[number, number], [number, number], [number, number], [number, number]] => {
-  const topLeft: [number, number] = [120.911552, 14.379081];
-  const topRight: [number, number] = [120.910066, 14.381315];
-  const bottomRight: [number, number] = [120.905839, 14.379270];
-  const bottomLeft: [number, number] = [120.906386, 14.377408];
+  // Reorder points clockwise around the image to prevent warping
+  const topLeft: [number, number] = [120.905839, 14.379270];   // NW-ish
+  const topRight: [number, number] = [120.910066, 14.381315];  // N / NE
+  const bottomRight: [number, number] = [120.911552, 14.379081]; // E / SE
+  const bottomLeft: [number, number] = [120.906386, 14.377408];  // S / SW
 
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
