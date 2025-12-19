@@ -1,7 +1,9 @@
-import { Compass, Plane, ShoppingBag, Building, UtensilsCrossed, MapPin, ArrowRight, Sparkles } from 'lucide-react';
+import { Compass, Plane, ShoppingBag, Building, UtensilsCrossed, MapPin, ArrowRight, Sparkles, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 interface HomeScreenProps {
   onNavigate: (tab: string) => void;
@@ -48,12 +50,33 @@ const popularActivities = [
 ];
 
 const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const displayName = user?.user_metadata?.display_name || 'Traveler';
+
   return (
     <div className="px-4 py-6 space-y-8">
       {/* Welcome Section */}
-      <div className="space-y-2">
-        <p className="text-muted-foreground">Welcome back,</p>
-        <h2 className="text-3xl font-oswald font-semibold">Where to next?</h2>
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <p className="text-muted-foreground">
+            {user ? `Welcome back,` : 'Welcome,'}
+          </p>
+          <h2 className="text-3xl font-oswald font-semibold">
+            {user ? displayName : 'Where to next?'}
+          </h2>
+        </div>
+        {!user && (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/auth')}
+            className="rounded-full"
+          >
+            <User className="w-4 h-4 mr-2" />
+            Sign In
+          </Button>
+        )}
       </div>
 
       {/* Category Grid */}

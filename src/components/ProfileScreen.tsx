@@ -1,18 +1,53 @@
-import { User, Settings, Heart, MapPin, LogOut, ChevronRight, Bell, HelpCircle, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { User, Settings, Heart, MapPin, LogOut, ChevronRight, Bell, HelpCircle, Shield, LogIn } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const ProfileScreen = () => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: 'Signed out',
+      description: 'You have been successfully signed out.',
+    });
+  };
+
   const menuItems = [
-    { icon: Heart, label: 'Favorites', badge: '12' },
-    { icon: MapPin, label: 'My Places', badge: '5' },
+    { icon: Heart, label: 'Favorites', badge: '0' },
+    { icon: MapPin, label: 'My Places', badge: '0' },
     { icon: Bell, label: 'Notifications' },
     { icon: Shield, label: 'Privacy & Security' },
     { icon: HelpCircle, label: 'Help & Support' },
     { icon: Settings, label: 'Settings' },
   ];
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+        <div className="w-32 h-32 mb-6 bg-secondary rounded-full flex items-center justify-center">
+          <User className="w-16 h-16 text-muted-foreground" />
+        </div>
+        <h2 className="text-2xl font-oswald font-semibold mb-2">Sign in to continue</h2>
+        <p className="text-muted-foreground mb-6 max-w-xs">
+          Create an account to save your trips, favorites, and personalize your experience
+        </p>
+        <Button 
+          onClick={() => navigate('/auth')}
+          className="rounded-xl bg-gradient-primary shadow-glow px-8"
+        >
+          <LogIn className="w-5 h-5 mr-2" />
+          Sign In / Sign Up
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 py-6 space-y-6">
@@ -26,8 +61,10 @@ const ProfileScreen = () => {
             </div>
           </div>
           <div className="text-center">
-            <h2 className="text-xl font-semibold">Traveler</h2>
-            <p className="text-sm text-muted-foreground">traveler@gala.ai</p>
+            <h2 className="text-xl font-semibold">
+              {user.user_metadata?.display_name || 'Traveler'}
+            </h2>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
             <Button variant="outline" size="sm" className="mt-3 rounded-full">
               Edit Profile
             </Button>
@@ -75,7 +112,11 @@ const ProfileScreen = () => {
       </Card>
 
       {/* Logout */}
-      <Button variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/10">
+      <Button 
+        variant="ghost" 
+        onClick={handleSignOut}
+        className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+      >
         <LogOut className="w-5 h-5 mr-2" />
         Sign Out
       </Button>
