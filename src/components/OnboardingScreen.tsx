@@ -15,8 +15,8 @@ const slides = [
     title: 'Welcome to Gala AI',
     subtitle: 'Your Philippine Adventure Awaits',
     description: 'Discover the beauty of 7,641 islands with AI-powered travel planning tailored just for you.',
-    color: 'from-primary to-purple-600',
-    bgPattern: '🌴',
+    gradient: 'from-primary via-purple-500 to-pink-500',
+    emoji: '🌴',
   },
   {
     id: 2,
@@ -24,8 +24,8 @@ const slides = [
     title: 'AI-Powered Itineraries',
     subtitle: 'Smart Planning Made Easy',
     description: 'Tell us where you want to go, and our AI creates personalized day-by-day itineraries in seconds.',
-    color: 'from-accent to-teal-600',
-    bgPattern: '✨',
+    gradient: 'from-teal-400 via-cyan-500 to-blue-500',
+    emoji: '✨',
   },
   {
     id: 3,
@@ -33,8 +33,8 @@ const slides = [
     title: 'Explore Hidden Gems',
     subtitle: 'Beyond the Tourist Spots',
     description: 'From secret beaches to local food spots, discover authentic Philippine experiences.',
-    color: 'from-explore to-orange-600',
-    bgPattern: '🏝️',
+    gradient: 'from-orange-400 via-red-500 to-pink-500',
+    emoji: '🏝️',
   },
   {
     id: 4,
@@ -42,8 +42,8 @@ const slides = [
     title: 'Save Your Favorites',
     subtitle: 'Plan Now, Travel Later',
     description: 'Save destinations and itineraries to your profile. Your dream trips are always within reach.',
-    color: 'from-shop to-pink-600',
-    bgPattern: '❤️',
+    gradient: 'from-pink-400 via-rose-500 to-red-500',
+    emoji: '❤️',
   },
 ];
 
@@ -78,43 +78,67 @@ const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
     enter: (direction: number) => ({
       x: direction > 0 ? 300 : -300,
       opacity: 0,
+      scale: 0.9,
     }),
     center: {
       x: 0,
       opacity: 1,
+      scale: 1,
     },
     exit: (direction: number) => ({
       x: direction < 0 ? 300 : -300,
       opacity: 0,
+      scale: 0.9,
     }),
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
-      {/* Skip Button */}
-      <div className="absolute top-4 right-4 z-10">
-        <Button
-          variant="ghost"
-          onClick={skipOnboarding}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          Skip
-        </Button>
-      </div>
-
-      {/* Background Pattern */}
-      <div className="absolute inset-0 overflow-hidden opacity-5">
-        <div className="absolute inset-0 flex flex-wrap justify-center items-center gap-8 text-6xl">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <span key={i} className="select-none">
-              {slide.bgPattern}
-            </span>
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className={cn("absolute inset-0 opacity-10 bg-gradient-to-br", slide.gradient)}
+          animate={{ opacity: [0.05, 0.15, 0.05] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        />
+        <div className="absolute inset-0 flex flex-wrap justify-center items-center gap-12 opacity-5">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <motion.span 
+              key={i} 
+              className="text-6xl select-none"
+              animate={{ 
+                y: [0, -20, 0],
+                opacity: [0.3, 0.6, 0.3]
+              }}
+              transition={{ 
+                duration: 3 + (i % 3), 
+                repeat: Infinity,
+                delay: i * 0.1
+              }}
+            >
+              {slide.emoji}
+            </motion.span>
           ))}
         </div>
       </div>
 
+      {/* Skip Button */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="absolute top-4 right-4 z-10"
+      >
+        <Button
+          variant="ghost"
+          onClick={skipOnboarding}
+          className="text-muted-foreground hover:text-foreground rounded-full"
+        >
+          Skip
+        </Button>
+      </motion.div>
+
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 relative">
+      <div className="flex-1 flex flex-col items-center justify-center px-8 relative">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={slide.id}
@@ -124,7 +148,7 @@ const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
             animate="center"
             exit="exit"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="flex flex-col items-center text-center max-w-md"
+            className="flex flex-col items-center text-center max-w-sm"
           >
             {/* Icon */}
             <motion.div
@@ -132,11 +156,19 @@ const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
               animate={{ scale: 1, rotate: 0 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
               className={cn(
-                'w-28 h-28 rounded-3xl flex items-center justify-center mb-8 shadow-glow bg-gradient-to-br',
-                slide.color
+                'w-32 h-32 rounded-3xl flex items-center justify-center mb-8 shadow-2xl bg-gradient-to-br',
+                slide.gradient
               )}
             >
-              <slide.icon className="w-14 h-14 text-white" strokeWidth={1.5} />
+              <motion.div
+                animate={{ 
+                  y: [0, -5, 0],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <slide.icon className="w-16 h-16 text-white" strokeWidth={1.5} />
+              </motion.div>
             </motion.div>
 
             {/* Title */}
@@ -177,7 +209,7 @@ const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
         {/* Progress Dots */}
         <div className="flex justify-center gap-2">
           {slides.map((_, index) => (
-            <button
+            <motion.button
               key={index}
               onClick={() => {
                 setDirection(index > currentSlide ? 1 : -1);
@@ -186,47 +218,62 @@ const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
               className={cn(
                 'h-2 rounded-full transition-all duration-300',
                 index === currentSlide
-                  ? 'w-8 bg-primary'
+                  ? 'w-10 bg-gradient-to-r from-primary to-purple-600'
                   : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
               )}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
             />
           ))}
         </div>
 
         {/* Navigation Buttons */}
         <div className="flex items-center gap-4">
-          {currentSlide > 0 && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={prevSlide}
-              className="rounded-full w-12 h-12"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-          )}
+          <AnimatePresence>
+            {currentSlide > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={prevSlide}
+                  className="rounded-full w-14 h-14 border-2"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <Button
-            onClick={nextSlide}
-            className={cn(
-              'flex-1 h-14 rounded-xl text-lg font-semibold transition-all duration-300',
-              isLastSlide
-                ? 'bg-gradient-primary shadow-glow'
-                : 'bg-primary hover:bg-primary/90'
-            )}
+          <motion.div 
+            className="flex-1"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {isLastSlide ? (
-              <>
-                <Sparkles className="w-5 h-5 mr-2" />
-                Get Started
-              </>
-            ) : (
-              <>
-                Continue
-                <ChevronRight className="w-5 h-5 ml-2" />
-              </>
-            )}
-          </Button>
+            <Button
+              onClick={nextSlide}
+              className={cn(
+                'w-full h-14 rounded-2xl text-lg font-semibold transition-all duration-300',
+                'bg-gradient-to-r shadow-lg',
+                slide.gradient
+              )}
+            >
+              {isLastSlide ? (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Get Started
+                </>
+              ) : (
+                <>
+                  Continue
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </>
+              )}
+            </Button>
+          </motion.div>
         </div>
       </div>
     </div>
